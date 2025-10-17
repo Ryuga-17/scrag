@@ -21,6 +21,7 @@
 ## Table of Contents
 - [About](#about)
 - [Features](#features)
+- [Project Structure](#project-structure)
 - [Roadmap](#roadmap)
 - [Quick Start](#quick-start)
 - [Usage](#usage)
@@ -45,6 +46,42 @@ An ambitious, optional extension to this project is the Universal RAG Builder. T
 - Optional headless rendering fallback for dynamic, JS‑heavy pages.  
 - RAG‑ready output: clean, structured content suitable for chunking and indexing.  
 - CLI first: simple commands to fetch and export content; web UI planned.  
+
+---
+
+## Project Structure
+
+```
+scrag/
+├── src/scrag/                 # Main source code
+│   ├── extractors/           # Content extraction strategies
+│   ├── processors/           # Text processing and cleaning
+│   ├── storage/              # Storage backends and adapters
+│   ├── rag/                  # RAG pipeline components
+│   ├── cli/                  # Command-line interface
+│   ├── web/                  # Web interface (planned)
+│   └── utils/                # Utility functions
+├── tests/                    # Comprehensive test suite
+│   ├── unit/                 # Unit tests
+│   ├── integration/          # Integration tests
+│   ├── performance/          # Performance benchmarks
+│   └── fixtures/             # Test data and mocks
+├── docs/                     # Documentation
+│   ├── api/                  # API reference
+│   ├── guides/               # User guides
+│   └── tutorials/            # Step-by-step tutorials
+├── config/                   # Configuration files
+│   ├── extractors/           # Extractor configurations
+│   └── rag/                  # RAG pipeline configurations
+├── deployment/               # Deployment configurations
+│   ├── docker/               # Docker configurations
+│   ├── kubernetes/           # Kubernetes manifests
+│   └── aws/                  # AWS deployment files
+├── scripts/                  # Development and build scripts
+└── ARCHITECTURE.md           # Detailed architecture documentation
+```
+
+For detailed architecture information, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
 
