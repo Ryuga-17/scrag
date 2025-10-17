@@ -3,17 +3,15 @@
 ![Forktober GIF](https://raw.githubusercontent.com/ACM-VIT/.github/master/profile/acm_gif_banner.gif)
 
 <!-- Project Title -->
-<h2>PROJECT TITLE</h2>
+<h2>Scrag</h2>
 
-<p>Short description about the project. One or two lines that explain what it does and who it’s for.</p>
+<p>Adaptive, multi‑strategy web scraper that extracts clean text and metadata for RAG pipelines and local LLM workflows.</p>
 
 <p>
   <a href="https://acmvit.in/" target="_blank">
     <img alt="made-by-acm" src="https://img.shields.io/badge/MADE%20BY-ACM%20VIT-orange?style=flat-square&logo=acm&link=acmvit.in" />
   </a>
-  <!-- Uncomment the below line to add the license badge. Make sure the right license badge is reflected. -->
-  <!-- <img alt="license" src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" /> -->
-  <!-- Add forks/stars/tech stack badges from https://shields.io/ as needed -->
+  <img alt="license" src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" />
 </p>
 
 </div>
@@ -22,6 +20,8 @@
 
 ## Table of Contents
 - [About](#about)
+- [Features](#features)
+- [Roadmap](#roadmap)
 - [Quick Start](#quick-start)
 - [Usage](#usage)
 - [Contributing](#contributing)
@@ -33,7 +33,25 @@
 ---
 
 ## About
-Write a compelling overview about the project: the problem it solves, the motivation, and what makes it unique. Include a short roadmap or key features if helpful.
+This project proposes a robust web scraper designed for maximum adaptability. It automatically adjusts to various website structures by employing a multi‑strategy extraction approach. The scraper attempts to extract clean, structured text and metadata (including title, author, and date) using methods such as newspaper3k, readability‑lxml, and BeautifulSoup heuristics. In cases where these methods are insufficient, it can optionally fall back to headless browser rendering to capture content from more complex, dynamically loaded websites. The output is specifically formatted for integration into Retrieval‑Augmented Generation (RAG) pipelines or for use with local Large Language Models (LLMs).
+
+An ambitious, optional extension to this project is the Universal RAG Builder. This layer would automatically identify and scrape top‑ranked websites relevant to a user's query, subsequently building a RAG index from the collected data. This feature addresses a key limitation of local LLMs, their inability to browse the internet by providing automated knowledge aggregation and up‑to‑date information retrieval without requiring manual data collection. The project's user interface will initially be a Command Line Interface (CLI), with plans for a web‑based version to cater to users who prefer a more visually appealing display.
+
+---
+
+## Features
+- Multi‑strategy extraction: newspaper3k, readability‑lxml, and BeautifulSoup‑based heuristics.  
+- Metadata capture: title, author, and date when available.  
+- Optional headless rendering fallback for dynamic, JS‑heavy pages.  
+- RAG‑ready output: clean, structured content suitable for chunking and indexing.  
+- CLI first: simple commands to fetch and export content; web UI planned.  
+
+---
+
+## Roadmap
+- Universal RAG Builder: auto‑discover top results for a query, scrape them, and build a ready‑to‑use RAG index.  
+- Web UI: a lightweight interface for users who prefer a visual workflow.  
+- Export adapters: convenient formats for popular vector DBs and RAG frameworks.  
 
 ---
 
@@ -42,8 +60,8 @@ Write a compelling overview about the project: the problem it solves, the motiva
 ```bash
 # 1) Fork and clone
 # Click Fork on GitHub, then:
- git clone https://github.com/<your-username>/<repo>.git
- cd <repo>
+ git clone https://github.com/ACM-VIT/scrag.git
+ cd scrag
 
 # 2) Create a branch
  git checkout -b feat/your-feature
@@ -76,13 +94,10 @@ We welcome contributions of all kinds! Please read our [Contributing Guidelines]
 ## Hacktoberfest
 
 <p>
-  <a href="https://hacktoberfest.com/" target="_blank">
-<img alt="hactoberfest" src="https://img.shields.io/github/hacktoberfest/2025/tmrowco/tmrowapp-contrib?style=flat-square&logo=acm&labelColor=indigo&link=hacktoberfest.com"/>
-  </a>
-
-<!-- Badge Format 
-https://img.shields.io/github/hacktoberfest/:year/:user/:repo
--->
+   <a href="https://hacktoberfest.com/" target="_blank">
+      <img alt="Hacktoberfest" src="https://img.shields.io/badge/Hacktoberfest-2025-indigo?style=flat-square" />
+   </a>
+</p>
 
 Join us for Hacktoberfest! Quality > quantity.
 - Aim for meaningful, well‑scoped PR/MRs that solve real issues.
