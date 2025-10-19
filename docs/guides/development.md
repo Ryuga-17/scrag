@@ -1,224 +1,121 @@
 # Development Setup Guide
 
-This guide helps developers set up a complete development environment for contributing to Scrag.
+This document tracks the current contributor workflow for Scrag. It assumes you are working on the Python CLI and pipeline that live under `src/scrag/core`.
 
-## Development Prerequisites
+## Prerequisites
 
-- Python 3.8+
+- Python 3.13 (matches `pyproject.toml`)
+- [uv](https://docs.astral.sh/uv/) 0.4+ (manages virtualenvs and dependency resolution)
 - Git
-- Docker (optional, for containerized development)
-- Node.js (for web interface development)
-- Make (for using Makefile commands)
+- Optional: Node.js 20+ if you plan to work on the Next.js frontend in `src/scrag/web`
 
-## Setting Up Development Environment
+## Environment Setup
 
-### 1. Fork and Clone
+1. **Fork and clone**
 
-```bash
-# Fork the repository on GitHub first, then:
-git clone https://github.com/YOUR_USERNAME/scrag.git
-cd scrag
-```
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/scrag.git
+   cd scrag
+   ```
 
-### 2. Development Dependencies
+2. **Install dependencies**
 
-```bash
-# Install development dependencies
-pip install -r requirements-dev.txt
+   ```bash
+   uv sync
+   uv pip install -e src/scrag
+   ```
 
-# Install pre-commit hooks
-pre-commit install
-```
+   - `uv sync` bootstraps the project environment.
+   - The editable install exposes the `scrag` entry point so you can iterate on the CLI.
 
-### 3. Environment Configuration
+3. **Smoke-test the CLI**
 
-```bash
-# Copy environment template
-cp .env.example .env
+   ```bash
+   uv run scrag info
+   ```
 
-# Edit .env with your configuration
-# Add API keys, database URLs, etc.
-```
+   Seeing the merged configuration JSON confirms the config loader and Typer wiring are in sync.
 
-## Development Workflow
+## Daily Workflow
 
-### Running Tests
+### Run tests
 
 ```bash
-# Run all tests
-pytest
+# Entire test suite
+uv run pytest
 
-# Run specific test categories
-pytest tests/unit/
-pytest tests/integration/
-pytest tests/performance/
-
-# Run tests with coverage
-pytest --cov=src/scrag --cov-report=html
+# Target specific modules
+uv run pytest tests/unit/test_cli.py -k min_length
 ```
 
-### Code Quality
+Unit coverage currently focuses on the CLI contract, extractor fallbacks, and pipeline orchestration. Add regression tests any time you modify these behaviors.
+
+### Code quality
+
+`pyproject.toml` defines Ruff rules. Install Ruff locally (once) to lint before committing:
 
 ```bash
-# Format code
-black src/ tests/
-
-# Lint code
-flake8 src/ tests/
-
-# Type checking
-mypy src/
-
-# Security audit
-bandit -r src/
+uv tool install ruff
+ruff check src tests
+ruff format src tests
 ```
 
-### Documentation
+If you prefer, add Ruff as a dev dependency via `uv add --dev ruff`.
 
-```bash
-# Generate API docs
-cd docs
-make html
+### Configuration tips
 
-# Serve docs locally
-cd docs/_build/html
-python -m http.server 8000
+- Defaults live in `config/default.yml`. Create environment-specific overrides (e.g. `config/local.yml`) when you need experimental tweaks.
+- The pipeline honors optional sections:
+  - `pipeline.extractor_options.<key>` for constructor kwargs per extractor.
+  - `pipeline.processor_options.<key>` for processor kwargs.
+  - `pipeline.minimum_content_length` prevents short, noisy pages from halting the pipeline; use the CLI `--min-length` flag for ad-hoc overrides.
+
+### Extending the pipeline
+
+| Component | Location | Registration |
+|-----------|----------|--------------|
+| Extractor | `core/extractors/` | Add class and register in `EXTRACTOR_REGISTRY` |
+| Processor | `core/processors/` | Register in `PROCESSOR_REGISTRY` |
+| Storage   | `core/storage/`    | Register in `STORAGE_REGISTRY` |
+
+Implementation checklist:
+
+1. Create the class (subclassing the appropriate base type).
+2. Register the class in the relevant registry so configuration keys resolve.
+3. Add tests in `tests/unit/` that cover success and failure paths. Use `unittest.mock` to avoid hitting the network.
+4. Update documentation (this guide or architecture notes) and sample configuration if new options are required.
+
+### Debugging
+
+- Use `uv run python -m core.cli extract ...` when you want to attach a debugger via `-m pdb`.
+- Inspect failure output: the pipeline now bubbles up the last failure reason (e.g. short content) to speed up diagnosis.
+- Saved artifacts in `data/` include metadata with extractor and processor details; examine them to understand actual runtime behavior.
+
+## Project Layout
+
+```
+src/scrag/core/
+├── cli/            # Typer entry points and CLI glue
+├── extractors/     # Strategy implementations & registry
+├── processors/     # Text normalization steps & registry
+├── storage/        # Persistence adapters (memory, file, etc.)
+├── pipeline.py     # PipelineRunner orchestrating the stages
+└── utils/          # Config loader and supporting utilities
 ```
 
-## Project Structure for Developers
+Tests mirror the runtime modules under `tests/unit/`.
 
-### Core Modules
+## Contribution Checklist
 
-- `src/scrag/extractors/` - Implement new extraction strategies here
-- `src/scrag/processors/` - Add content processing logic
-- `src/scrag/storage/` - Create storage adapters
-- `src/scrag/rag/` - RAG pipeline components
-
-### Adding New Features
-
-1. **Create a new extractor**:
-   - Implement `BaseExtractor` interface
-   - Add configuration schema
-   - Write comprehensive tests
-   - Update documentation
-
-2. **Add a new processor**:
-   - Implement `BaseProcessor` interface
-   - Define processing parameters
-   - Add to processing pipeline
-   - Write unit tests
-
-3. **Create a storage adapter**:
-   - Implement `StorageAdapter` interface
-   - Handle connection management
-   - Add integration tests
-   - Update configuration schemas
-
-## Testing Guidelines
-
-### Unit Tests
-- Test individual components in isolation
-- Mock external dependencies
-- Aim for 90%+ code coverage
-- Use pytest fixtures for test data
-
-### Integration Tests
-- Test component interactions
-- Use real but controlled environments
-- Test error handling and edge cases
-- Include performance considerations
-
-### Performance Tests
-- Benchmark critical paths
-- Test scalability limits
-- Monitor memory usage
-- Use pytest-benchmark
-
-## Contributing Workflow
-
-### Before Making Changes
-
-1. Create a new branch from main
-2. Write or update tests first (TDD approach)
-3. Implement the feature/fix
-4. Ensure all tests pass
-5. Update documentation
-
-### Submitting Changes
-
-1. Run the full test suite
-2. Check code quality metrics
-3. Update CHANGELOG.md
-4. Create a detailed pull request
-5. Address review feedback
-
-## Debugging
-
-### Common Development Issues
-
-1. **Import errors**: Check PYTHONPATH and virtual environment
-2. **Test failures**: Ensure test dependencies are installed
-3. **Configuration issues**: Verify config file syntax and paths
-4. **Performance issues**: Use profiling tools
-
-### Debugging Tools
-
-```bash
-# Python debugger
-python -m pdb script.py
-
-# Performance profiling
-python -m cProfile -o profile.stats script.py
-
-# Memory profiling
-mprof run script.py
-mprof plot
-```
-
-## IDE Setup
-
-### VS Code
-Recommended extensions:
-- Python
-- Python Docstring Generator
-- Black Formatter
-- Pylance
-- GitLens
-
-### PyCharm
-Recommended configuration:
-- Enable type checking
-- Configure code style (Black)
-- Set up run configurations
-- Enable pytest as test runner
-
-## Continuous Integration
-
-The project uses GitHub Actions for CI/CD:
-- Automated testing on multiple Python versions
-- Code quality checks
-- Security scanning
-- Documentation building
-- Automated releases
-
-Local CI simulation:
-```bash
-# Run the same checks as CI
-./scripts/ci_checks.sh
-```
-
-## Release Process
-
-1. Update version numbers
-2. Update CHANGELOG.md
-3. Create release branch
-4. Run full test suite
-5. Create GitHub release
-6. Automated deployment to PyPI
+1. Create a feature branch from `main`.
+2. Write or update tests before finalizing the implementation.
+3. Ensure `uv run pytest` passes.
+4. Run `ruff check` (or your chosen linter) and fix reported issues.
+5. Update relevant docs (`README.md`, guides, config comments) to reflect user-facing changes.
+6. Submit a PR with a concise description, reproduction steps (if fixing a bug), and screenshots or sample command output when helpful.
 
 ## Getting Help
 
-- Read existing code and tests for patterns
-- Check the [Architecture documentation](../../ARCHITECTURE.md)
-- Join development discussions on GitHub
-- Ask questions in pull request reviews
+- Review [ARCHITECTURE.md](../../ARCHITECTURE.md) for a high-level overview of the extractor/processor/storage contracts.
+- Explore existing tests to understand mocking patterns and expected behavior.
+- Open a discussion or issue on GitHub when you encounter blocking questions.
