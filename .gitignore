@@ -1,1 +1,5 @@
-/venv
+venv/
+
+pycache/
+*.py[cod]
+*$py.class
