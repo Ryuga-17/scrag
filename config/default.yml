@@ -11,6 +11,7 @@ pipeline:
     - http
   processors:
     - normalize_whitespace
+  minimum_content_length: 200
   storage:
     type: file
     options:

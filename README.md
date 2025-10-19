@@ -122,6 +122,9 @@ uv run scrag extract https://example.com/article
 
 # Choose a custom output location and persist as plain text
 uv run scrag extract https://example.com/article --output data/custom --format txt
+
+# Relax the minimum content length requirement for sparse pages
+uv run scrag extract https://example.com/article --min-length 50
 ```
 
 ---
