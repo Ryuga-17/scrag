@@ -8,13 +8,20 @@ version = "0.1.0"
 description = "Adaptive, multi-strategy web scraper for RAG pipelines and local LLM workflows"
 readme = "README.md"
 requires-python = ">=3.13"
+dependencies = [
+	"typer>=0.12",
+	"pyyaml>=6.0",
+]
 
 [project.scripts]
 scrag = "core.cli:main"
 
 [tool.setuptools.packages.find]
-where = ["core"]
+where = ["."]
 include = ["core*"]
+
+[tool.setuptools.package-dir]
+"" = "."
 
 [tool.pytest.ini_options]
 addopts = "-q"
