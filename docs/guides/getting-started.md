@@ -1,121 +1,102 @@
 # Getting Started with Scrag
 
-This guide will help you set up and start using Scrag for your web scraping and RAG pipeline needs.
+Scrag is a Typer-powered CLI for running a multi-strategy scraping pipeline. The default configuration fans out across `newspaper3k`, `readability-lxml`, and a BeautifulSoup HTTP fallback, then normalizes the text and writes results to `data/`.
 
 ## Prerequisites
 
-- Python 3.8 or higher
+- Python 3.13 (matches the `requires-python` in `pyproject.toml`)
+- [uv](https://docs.astral.sh/uv/) 0.4+ for dependency and virtualenv management
 - Git
-- Virtual environment tool (venv, conda, or virtualenv)
+
+> Tip: `uv` bundles its own virtual environment. You do not need to create a venv manually.
 
 ## Installation
 
-### 1. Clone the Repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/ACM-VIT/scrag.git
 cd scrag
 ```
 
-### 2. Set Up Virtual Environment
+### 2. Sync dependencies
 
 ```bash
-# Using venv
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Or using conda
-conda create -n scrag python=3.8
-conda activate scrag
+uv sync
+uv pip install -e src/scrag
 ```
 
-### 3. Install Dependencies
+`uv sync` resolves the lockfile `uv.lock` (if present) and installs toolchain requirements. The editable install exposes the `scrag` CLI entry point.
+
+### 3. Verify the CLI
 
 ```bash
-pip install -r requirements.txt
+uv run scrag info
 ```
 
-### 4. Install Scrag in Development Mode
-
-```bash
-pip install -e .
-```
+This command prints the merged configuration (`config/default.yml` by default). Seeing valid JSON means the CLI and config loader are healthy.
 
 ## Basic Usage
 
-### Command Line Interface
+### Extract a URL
 
 ```bash
-# Scrape a single URL
-scrag scrape https://example.com/article
-
-# Scrape multiple URLs
-scrag scrape urls.txt --output scraped_content/
-
-# Build a RAG index from scraped content
-scrag rag-build --source scraped_content/ --index my_rag_index
+uv run scrag extract https://example.com/article
 ```
 
-### Python API
+The CLI prints the extractor that succeeded, the processors that ran, the character count, and the path of any stored artifact. By default, storage is `data/<slug>-<timestamp>.json`.
 
-```python
-from scrag import Scraper, RAGBuilder
+### Override runtime options
 
-# Initialize scraper with default configuration
-scraper = Scraper()
+```bash
+# Write plain text to a custom directory
+uv run scrag extract https://example.com/article --output data/export --format txt
 
-# Scrape content from a URL
-result = scraper.extract("https://example.com/article")
-print(f"Title: {result.title}")
-print(f"Content: {result.content[:200]}...")
+# Relax the minimum content length for thin pages
+uv run scrag extract https://example.com/article --min-length 50
 
-# Build RAG index
-rag_builder = RAGBuilder()
-index = rag_builder.build_from_content([result])
+# Point at a different config directory or environment
+uv run scrag extract https://example.com/article --config-dir config --environment staging
 ```
+
+When every extractor falls below the configured minimum length (`pipeline.minimum_content_length`), Scrag now returns the best short result and includes `warning` messages in the CLI output.
+
+### Inspect saved output
+
+Artifacts live in `data/` and are ignored by Git. JSON records include:
+
+- `content`: normalized text
+- `metadata`: extractor details, URL, timestamps, optional warnings
 
 ## Configuration
 
-Scrag uses YAML configuration files located in the `config/` directory:
+The configuration loader merges `<config-dir>/default.yml` with `<config-dir>/<environment>.yml`.
 
-- `config/default.yaml` - Default settings
-- `config/extractors/` - Extractor-specific configurations
-- `config/rag/` - RAG pipeline configurations
+Key sections in `config/default.yml`:
 
-You can override default settings by creating a custom configuration file:
+- `scraping` – shared HTTP options (user agent, timeout)
+- `pipeline.extractors` – ordered list of extractor registry keys
+- `pipeline.minimum_content_length` – global floor before a fallback result is flagged as partial
+- `pipeline.storage` – storage adapter and options (defaults to file-based JSON)
 
-```yaml
-# my_config.yaml
-extractors:
-  newspaper3k:
-    timeout: 30
-  selenium:
-    headless: true
-    
-rag:
-  chunk_size: 1000
-  overlap: 200
-```
+You can supply per-extractor overrides via `pipeline.extractor_options` and per-processor overrides via `pipeline.processor_options`.
 
-Use your custom config:
+## Testing the Installation
 
 ```bash
-scrag --config my_config.yaml scrape https://example.com
+uv run pytest
 ```
+
+The unit suite covers the CLI contract, pipeline behavior (including minimum-length handling), and extractor edge cases such as missing optional dependencies.
 
 ## Next Steps
 
-1. **Read the Architecture**: Check out [ARCHITECTURE.md](../ARCHITECTURE.md) for detailed system design
-2. **Check the API Reference**: Browse `docs/api/` for detailed API documentation
-3. **Follow Tutorials**: Work through tutorials in `docs/tutorials/`
+1. Read [ARCHITECTURE.md](../../ARCHITECTURE.md) for the domain-driven overview of extractors, processors, and storage adapters.
+2. Follow the [Development Setup Guide](development.md) when you are ready to contribute.
+3. Explore the tests in `tests/unit/` to see concrete usage and mocking patterns.
 
 ## Getting Help
 
-- Check the [FAQ](FAQ.md) for common questions
-- Read the [Troubleshooting Guide](troubleshooting.md)
-- Open an issue on GitHub for bugs or feature requests
-- Join our community discussions
-
-## Contributing
-
-We welcome contributions! Please read our [Contributing Guidelines](../CONTRIBUTING.md) and check out the [Development Setup Guide](development.md) if you want to contribute code.
+- Search existing issues and open a new one with reproducible steps if needed.
+- Use the CLI `--help` output (`uv run scrag --help`) to discover command options.
+- For configuration questions, inspect `core/utils/config.py` and `config/default.yml` to understand how overrides merge.
