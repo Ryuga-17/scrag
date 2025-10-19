@@ -107,19 +107,21 @@ For detailed architecture information, see [ARCHITECTURE.md](ARCHITECTURE.md).
  uv sync
  uv pip install -e src/scrag
 
-# 4) Run the project
- uv run python -m core.cli info
+# 4) Verify the CLI
+ uv run scrag info
 ```
 
 ---
 
 ## Usage
-Provide examples and code snippets showing how to use the project. Add screenshots or GIFs if applicable.
+Run the Typer-powered CLI after syncing dependencies (as shown in Quick Start).
 
-```console
-# examples
-<your-cli> init
-<your-cli> run
+```sh
+# Extract a single page using the default strategy cascade
+uv run scrag extract https://example.com/article
+
+# Choose a custom output location and persist as plain text
+uv run scrag extract https://example.com/article --output data/custom --format txt
 ```
 
 ---

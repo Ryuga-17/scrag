@@ -6,10 +6,16 @@ scraping:
   request_timeout: 10
 pipeline:
   extractors:
-    - simple
+    - newspaper
+    - readability
+    - http
   processors:
-    - simple
-  storage: memory
+    - normalize_whitespace
+  storage:
+    type: file
+    options:
+      directory: data
+      format: json
 rag:
   chunk_size: 512
   overlap: 64
