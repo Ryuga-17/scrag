@@ -1,23 +1,24 @@
-from src.scrag.extractors.newspaper_extractor import NewspaperExtractor
+from core.extractors import ExtractionContext, SimpleExtractor
 
-def test_newspaper_extractor_basic_fields():
-    extractor = NewspaperExtractor()
-    url = ""  # you can put any url here to test. example: "https://en.wikipedia.org/wiki/Web_scraping"
 
-    result = extractor.extract(url)
+def test_simple_extractor_generates_metadata() -> None:
+    extractor = SimpleExtractor()
+    context = ExtractionContext(url="https://example.com", metadata={"source": "test"})
 
-    assert isinstance(result, dict)
+    result = extractor.extract(context)
 
-    assert "title" in result
-    assert "text" in result
-    assert "authors" in result
-    assert "publish_date" in result
-    assert "url" in result
+    assert result.succeeded is True
+    assert "example.com" in result.content
+    assert result.metadata["extractor"] == "simple"
+    assert result.metadata["source"] == "test"
 
-def test_newspaper_extractor_invalid_url():
-    extractor = NewspaperExtractor()
-    url = "" # put any invalid url to test
 
-    result = extractor.extract(url)
+def test_simple_extractor_handles_missing_url() -> None:
+    extractor = SimpleExtractor()
+    context = ExtractionContext(url="")
 
-    assert result is None
+    result = extractor.extract(context)
+
+    assert result.succeeded is False
+    assert "unknown resource" in result.content
+    assert result.metadata["extractor"] == "simple"

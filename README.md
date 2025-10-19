@@ -104,10 +104,11 @@ For detailed architecture information, see [ARCHITECTURE.md](ARCHITECTURE.md).
  git checkout -b feat/your-feature
 
 # 3) Install dependencies
-# paste your install command(s) here
+ uv sync
+ uv pip install -e src/scrag
 
 # 4) Run the project
-# paste your run command(s) here
+ uv run python -m core.cli info
 ```
 
 ---
