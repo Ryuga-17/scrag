@@ -1,4 +1,6 @@
-venv/
+.venv/
+src/scrag/.venv/
+src/scrag/core/scrag.egg-info/
 
 __pycache__/
 *.py[cod]

@@ -1,0 +1,15 @@
+environment: default
+logging:
+  level: INFO
+scraping:
+  user_agent: "scragBot/0.1"
+  request_timeout: 10
+pipeline:
+  extractors:
+    - simple
+  processors:
+    - simple
+  storage: memory
+rag:
+  chunk_size: 512
+  overlap: 64
