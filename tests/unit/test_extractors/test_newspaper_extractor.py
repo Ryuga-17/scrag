@@ -1,24 +1,21 @@
-from core.extractors import ExtractionContext, SimpleExtractor
+from core.extractors import ExtractionContext, NewspaperExtractor
 
 
-def test_simple_extractor_generates_metadata() -> None:
-    extractor = SimpleExtractor()
-    context = ExtractionContext(url="https://example.com", metadata={"source": "test"})
+def test_newspaper_extractor_handles_missing_dependency() -> None:
+    extractor = NewspaperExtractor()
+    context = ExtractionContext(url="https://example.com")
 
     result = extractor.extract(context)
 
-    assert result.succeeded is True
-    assert "example.com" in result.content
-    assert result.metadata["extractor"] == "simple"
-    assert result.metadata["source"] == "test"
+    assert result.succeeded is False
+    assert "newspaper3k" in result.metadata.get("reason", "")
 
 
-def test_simple_extractor_handles_missing_url() -> None:
-    extractor = SimpleExtractor()
+def test_newspaper_extractor_requires_url() -> None:
+    extractor = NewspaperExtractor()
     context = ExtractionContext(url="")
 
     result = extractor.extract(context)
 
     assert result.succeeded is False
-    assert "unknown resource" in result.content
-    assert result.metadata["extractor"] == "simple"
+    assert result.metadata.get("reason") == "missing_url"
