@@ -68,6 +68,11 @@ def extract(
     ),
     config_dir: Optional[Path] = typer.Option(None, help="Configuration directory location."),
     environment: Optional[str] = typer.Option(None, help="Configuration environment name."),
+    min_length: Optional[int] = typer.Option(
+        None,
+        "--min-length",
+        help="Override the minimum content length requirement for this run.",
+    ),
 ) -> None:
     """Execute the configured extraction pipeline for the provided URL."""
 
@@ -78,7 +83,12 @@ def extract(
 
     normalized_output = _normalize_output_path(output)
 
-    result = runner.run(url=normalized_url, output=normalized_output, storage_format=output_format)
+    result = runner.run(
+        url=normalized_url,
+        output=normalized_output,
+        storage_format=output_format,
+        min_content_length_override=min_length,
+    )
 
     typer.echo("Pipeline completed successfully.")
     typer.echo(f"  extractor: {result.extractor}")
@@ -88,6 +98,12 @@ def extract(
     if result.storage and result.storage.path:
         typer.echo(f"  saved-to: {result.storage.path}")
     typer.echo(f"  environment: {config.environment}")
+    if isinstance(result.metadata, dict) and result.metadata.get("partial"):
+        typer.echo("  note: content below configured minimum threshold")
+    warnings = result.metadata.get("warnings") if isinstance(result.metadata, dict) else None
+    if warnings:
+        for warning in warnings:
+            typer.echo(f"  warning: {warning}")
 
 
 @app.callback()

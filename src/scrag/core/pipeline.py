@@ -35,11 +35,17 @@ class PipelineRunner:
         url: str,
         output: Optional[Path] = None,
         storage_format: Optional[str] = None,
+        min_content_length_override: Optional[int] = None,
     ) -> PipelineRunResult:
         pipeline_cfg = self._config.data.get("pipeline", {})
         extractors_cfg = pipeline_cfg.get("extractors", [])
         processors_cfg = pipeline_cfg.get("processors", [])
         storage_cfg = pipeline_cfg.get("storage", {})
+        minimum_content_length = int(
+            min_content_length_override
+            if min_content_length_override is not None
+            else pipeline_cfg.get("minimum_content_length", 0)
+        )
 
         scraping_cfg = self._config.data.get("scraping", {})
 
@@ -64,6 +70,7 @@ class PipelineRunner:
             extractor_instances,
             url=url,
             scraping_cfg=scraping_cfg,
+            min_content_length=minimum_content_length,
         )
 
         processor_instances = build_processors(
@@ -95,6 +102,7 @@ class PipelineRunner:
         *,
         url: str,
         scraping_cfg: Dict[str, Any],
+        min_content_length: int,
     ) -> ExtractionResult:
         context_metadata = {
             "headers": {"User-Agent": scraping_cfg.get("user_agent", "ScragBot/0.1")},
@@ -102,14 +110,50 @@ class PipelineRunner:
             "url": url,
         }
         context = ExtractionContext(url=url, metadata=context_metadata)
+        failure_reason: Optional[str] = None
+        best_short_result: Optional[ExtractionResult] = None
+        best_short_length = 0
 
         for extractor in extractors:
             if not extractor.supports(context):
                 continue
             result = extractor.extract(context)
-            if result.succeeded and result.content:
+            if not result.succeeded:
+                reason = None
+                metadata = getattr(result, "metadata", None)
+                if isinstance(metadata, dict):
+                    reason = metadata.get("reason")
+                failure_reason = reason or f"{extractor.name} reported failure"
+                continue
+
+            content = result.content or ""
+            trimmed_length = len(content.strip())
+            if trimmed_length < min_content_length:
+                failure_reason = (
+                    f"{extractor.name} produced {trimmed_length} characters (< {min_content_length})."
+                )
+                if trimmed_length > best_short_length:
+                    best_short_result = result
+                    best_short_length = trimmed_length
+                continue
+
+            if content:
                 return result
-        raise RuntimeError("All extractors failed to retrieve content")
+        if best_short_result is not None:
+            metadata = dict(best_short_result.metadata)
+            metadata.setdefault("warnings", []).append(
+                failure_reason
+                or f"Content shorter than minimum threshold of {min_content_length} characters."
+            )
+            metadata["partial"] = True
+            return ExtractionResult(
+                content=best_short_result.content,
+                metadata=metadata,
+                succeeded=True,
+            )
+
+        message = failure_reason or "All extractors failed to retrieve content"
+        raise RuntimeError(message)
 
     @staticmethod
     def _run_processors(

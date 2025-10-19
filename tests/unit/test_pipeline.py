@@ -55,6 +55,7 @@ def test_pipeline_runner_invokes_all_stages(tmp_path: Path) -> None:
                 "extractors": ["dummy"],
                 "processors": ["dummy"],
                 "storage": {"type": "memory"},
+                "minimum_content_length": 0,
             },
         },
     )
@@ -66,3 +67,83 @@ def test_pipeline_runner_invokes_all_stages(tmp_path: Path) -> None:
     assert result.extractor == "dummy"
     assert result.processors == ["cleaner"]
     assert result.storage is not None
+
+
+def test_pipeline_runner_skips_short_content(monkeypatch: pytest.MonkeyPatch) -> None:
+    class ShortExtractor:
+        name = "short"
+
+        def supports(self, context):
+            return True
+
+        def extract(self, context):
+            return SimpleNamespace(content="brief", metadata={"extractor": self.name}, succeeded=True)
+
+    class LongExtractor:
+        name = "long"
+
+        def supports(self, context):
+            return True
+
+        def extract(self, context):
+            return SimpleNamespace(content="l" * 500, metadata={"extractor": self.name}, succeeded=True)
+
+    monkeypatch.setattr(
+        "core.pipeline.build_extractors",
+        lambda names, options=None: [ShortExtractor(), LongExtractor()],
+    )
+
+    config = ScragConfig(
+        environment="test",
+        data={
+            "scraping": {"user_agent": "TestAgent", "request_timeout": 5},
+            "pipeline": {
+                "extractors": ["short", "long"],
+                "processors": ["dummy"],
+                "storage": {"type": "memory"},
+                "minimum_content_length": 100,
+            },
+        },
+    )
+
+    runner = PipelineRunner(config)
+    result = runner.run(url="https://example.com")
+
+    assert result.extractor == "long"
+    assert len(result.content) == 500
+
+
+def test_pipeline_runner_returns_partial_when_all_short(monkeypatch: pytest.MonkeyPatch) -> None:
+    class ShortExtractor:
+        name = "short"
+
+        def supports(self, context):
+            return True
+
+        def extract(self, context):
+            return SimpleNamespace(content="tiny", metadata={"extractor": self.name}, succeeded=True)
+
+    monkeypatch.setattr(
+        "core.pipeline.build_extractors",
+        lambda names, options=None: [ShortExtractor()],
+    )
+
+    config = ScragConfig(
+        environment="test",
+        data={
+            "scraping": {"user_agent": "TestAgent", "request_timeout": 5},
+            "pipeline": {
+                "extractors": ["short"],
+                "processors": ["dummy"],
+                "storage": {"type": "memory"},
+                "minimum_content_length": 100,
+            },
+        },
+    )
+
+    runner = PipelineRunner(config)
+    result = runner.run(url="https://example.com")
+
+    assert result.content == "TINY"
+    assert result.metadata.get("partial") is True
+    assert result.metadata.get("warnings")
