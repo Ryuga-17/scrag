@@ -2,6 +2,7 @@
 src/scrag/.venv/
 src/scrag/core/scrag.egg-info/
 src/scrag/scrag.egg-info/
+data/
 
 __pycache__/
 *.py[cod]

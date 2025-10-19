@@ -1,10 +1,12 @@
-"""CLI smoke tests for the Scrag scaffold."""
+"""CLI smoke tests for the Scrag CLI."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
 from typer.testing import CliRunner
+from types import SimpleNamespace
+from unittest.mock import patch
 
 from core.cli import app
 
@@ -16,20 +18,64 @@ def test_info_command_runs_without_configuration(tmp_path: Path) -> None:
     assert "\"environment\"" in result.stdout
 
 
-def test_sample_command_uses_configuration(tmp_path: Path) -> None:
+def test_extract_command_invokes_pipeline(tmp_path: Path) -> None:
     config_dir = tmp_path / "config"
     config_dir.mkdir()
     (config_dir / "default.yml").write_text("logging:\n  level: DEBUG\n", encoding="utf8")
 
     runner = CliRunner()
-    result = runner.invoke(
-        app,
-        [
-            "sample",
-            "https://example.com",
-            "--config-dir",
-            str(config_dir),
-        ],
-    )
+    with patch("core.cli.app.PipelineRunner") as mock_runner:
+        instance = mock_runner.return_value
+        instance.run.return_value = SimpleNamespace(
+            content="example",
+            metadata={},
+            extractor="http",
+            processors=["normalize_whitespace"],
+            storage=None,
+        )
+
+        result = runner.invoke(
+            app,
+            [
+                "extract",
+                "https://example.com",
+                "--config-dir",
+                str(config_dir),
+            ],
+        )
+    assert result.exit_code == 0
+    assert "Pipeline completed successfully." in result.stdout
+    mock_runner.assert_called_once()
     assert result.exit_code == 0
     assert "Pipeline completed" in result.stdout
+
+
+def test_extract_command_adds_default_scheme(tmp_path: Path) -> None:
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+    (config_dir / "default.yml").write_text("logging:\n  level: DEBUG\n", encoding="utf8")
+
+    runner = CliRunner()
+    with patch("core.cli.app.PipelineRunner") as mock_runner:
+        instance = mock_runner.return_value
+        instance.run.return_value = SimpleNamespace(
+            content="example",
+            metadata={},
+            extractor="http",
+            processors=["normalize_whitespace"],
+            storage=None,
+        )
+
+        result = runner.invoke(
+            app,
+            [
+                "extract",
+                "example.com/article",
+                "--config-dir",
+                str(config_dir),
+            ],
+        )
+
+    assert result.exit_code == 0
+    _args, kwargs = instance.run.call_args
+    assert kwargs["url"] == "https://example.com/article"

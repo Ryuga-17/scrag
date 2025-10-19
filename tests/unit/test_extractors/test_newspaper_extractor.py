@@ -1,7 +1,11 @@
+import pytest
+
 from core.extractors import ExtractionContext, NewspaperExtractor
 
 
-def test_newspaper_extractor_handles_missing_dependency() -> None:
+def test_newspaper_extractor_handles_missing_dependency(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("core.extractors.newspaper_extractor.Article", None)
+
     extractor = NewspaperExtractor()
     context = ExtractionContext(url="https://example.com")
 

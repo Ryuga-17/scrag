@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+from urllib.parse import urlparse
 from typing import Optional
 
 import typer
 
 from core import __version__
-from core.extractors import ExtractionContext, SimpleExtractor
-from core.processors import ProcessingContext, SimpleProcessor
-from core.storage import InMemoryStorage, StorageContext
+from core.pipeline import PipelineRunner
 from core.utils import ScragConfig, load_config
 
 app = typer.Typer(help="Adaptive scraping toolkit for RAG pipelines.")
@@ -22,7 +21,7 @@ def _resolve_config(config_dir: Optional[Path], environment: Optional[str]) -> S
     if config_dir is not None:
         directory = config_dir
     else:
-        parents = (parent for parent in Path(__file__).resolve().parents)
+        parents = list(Path(__file__).resolve().parents)
         root_candidate = next((candidate for candidate in (parent / "config" for parent in parents) if candidate.exists()), None)
         candidates = [
             Path.cwd() / "config",
@@ -53,34 +52,78 @@ def info(
 
 
 @app.command()
-def sample(
-    url: str = typer.Argument(..., help="URL to process with the scaffold pipeline."),
+def extract(
+    url: str = typer.Argument(..., help="URL to scrape and process."),
+    output: Optional[Path] = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Directory or file path where processed content should be stored.",
+    ),
+    output_format: Optional[str] = typer.Option(
+        None,
+        "--format",
+        "-f",
+        help="Override storage format when writing to disk (e.g. json or txt).",
+    ),
     config_dir: Optional[Path] = typer.Option(None, help="Configuration directory location."),
     environment: Optional[str] = typer.Option(None, help="Configuration environment name."),
 ) -> None:
-    """Run the scaffold pipeline with simple extractor/processor/storage."""
+    """Execute the configured extraction pipeline for the provided URL."""
+
+    normalized_url = _normalize_target_url(url)
 
     config = _resolve_config(config_dir=config_dir, environment=environment)
-    extractor = SimpleExtractor()
-    processor = SimpleProcessor()
-    storage = InMemoryStorage()
+    runner = PipelineRunner(config)
 
-    extraction = extractor.extract(ExtractionContext(url=url))
-    processed = processor.process(ProcessingContext(content=extraction.content, metadata=extraction.metadata))
-    result = storage.store(StorageContext(content=processed.content, metadata=processed.metadata))
+    normalized_output = _normalize_output_path(output)
 
-    typer.echo("Pipeline completed:")
-    typer.echo(f"  extractor={extraction.metadata.get('extractor')}")
-    typer.echo(f"  processor={processed.metadata.get('processor')}")
-    typer.echo(f"  storage_items={result.metadata.get('items')}")
-    typer.echo(f"  config_environment={config.environment}")
+    result = runner.run(url=normalized_url, output=normalized_output, storage_format=output_format)
+
+    typer.echo("Pipeline completed successfully.")
+    typer.echo(f"  extractor: {result.extractor}")
+    if result.processors:
+        typer.echo(f"  processors: {', '.join(result.processors)}")
+    typer.echo(f"  content-characters: {len(result.content)}")
+    if result.storage and result.storage.path:
+        typer.echo(f"  saved-to: {result.storage.path}")
+    typer.echo(f"  environment: {config.environment}")
 
 
 @app.callback()
-def main_callback() -> None:
+def main_callback(
+    version: bool = typer.Option(False, "--version", help="Display the Scrag version and exit."),
+) -> None:
     """Global CLI callback to expose version info."""
 
-    pass
+    if version:
+        typer.echo(__version__)
+        raise typer.Exit()
+
+
+def _normalize_output_path(output: Optional[Path]) -> Optional[Path]:
+    if output is None:
+        return None
+    if output.suffix:
+        return output
+    return output.resolve()
+
+
+def _normalize_target_url(raw_url: str) -> str:
+    cleaned = raw_url.strip()
+    if not cleaned:
+        raise typer.BadParameter("URL cannot be empty")
+
+    parsed = urlparse(cleaned)
+    if parsed.scheme and parsed.netloc:
+        return cleaned
+
+    candidate = f"https://{cleaned.lstrip('/')}"
+    candidate_parsed = urlparse(candidate)
+    if candidate_parsed.scheme and candidate_parsed.netloc:
+        return candidate
+
+    raise typer.BadParameter("URL must include a valid hostname")
 
 
 def main() -> None:
