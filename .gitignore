@@ -1,5 +1,22 @@
+# Virtual environment
 venv/
 
-pycache/
+# Python cache
+__pycache__/
 *.py[cod]
 *$py.class
+
+# VS Code and other editor junk
+.vscode/
+.idea/
+
+# Byte-compiled / compiled files
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Environment files
+.env
