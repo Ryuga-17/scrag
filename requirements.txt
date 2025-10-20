@@ -1,4 +1,5 @@
 requests
 readability-lxml
-lxml
 pytest
+newspaper3k
+lxml[html_clean]

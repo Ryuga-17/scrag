@@ -1,0 +1,22 @@
+environment: default
+logging:
+  level: INFO
+scraping:
+  user_agent: "scragBot/0.1"
+  request_timeout: 10
+pipeline:
+  extractors:
+    - newspaper
+    - readability
+    - http
+  processors:
+    - normalize_whitespace
+  minimum_content_length: 200
+  storage:
+    type: file
+    options:
+      directory: data
+      format: json
+rag:
+  chunk_size: 512
+  overlap: 64
