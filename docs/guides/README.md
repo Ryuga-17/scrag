@@ -1,15 +1,10 @@
 # Guides
 
-This directory contains comprehensive guides for using Scrag in various scenarios.
+Scrag ships with two living documents that mirror the current implementation.
 
 ## Available Guides
 
-- `installation.md` - Installation and setup guide
-- `quick-start.md` - Quick start guide for new users
-- `configuration.md` - Configuration options and best practices
-- `extraction-strategies.md` - Guide to extraction strategies and when to use each
-- `rag-integration.md` - Integrating Scrag with RAG pipelines
-- `performance-tuning.md` - Performance optimization and tuning
-- `troubleshooting.md` - Common issues and solutions
-- `deployment.md` - Deployment strategies and production considerations
+- `getting-started.md` – Install Scrag with `uv`, run the Typer CLI, and understand the default configuration layout.
+- `development.md` – Contributor workflow covering tests, code quality expectations, and how to extend the extractor/processor/storage registries.
 
+Additional guides will land here as the project grows. Contributions are welcome; follow the structure in these documents when proposing a new guide.
