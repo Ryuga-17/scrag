@@ -26,16 +26,20 @@ class ReadabilityExtractor(BaseExtractor):
         return bool(context.url or context.html)
 
     def extract(self, context: ExtractionContext) -> ExtractionResult:
-        if not context.url:
-            return ExtractionResult(content="", succeeded=False, metadata={"reason": "missing_url"})
+        # if not context.url:
+        #     return ExtractionResult(content="", succeeded=False, metadata={"reason": "missing_url"})
 
         if Document is None:
             message = "readability-lxml is not installed; install 'readability-lxml' to enable this extractor."
             return ExtractionResult(content="", succeeded=False, metadata={"reason": message})
 
-        html_to_parse = context.html
+        html_to_parse = None
+        if context.metadata:
+            html_to_parse = context.metadata.get("html") 
+            
+        url_to_use = context.url
 
-        if not context.html and context.url:
+        if not html_to_parse and url_to_use:
             headers = {"User-Agent": self._user_agent}
             headers.update(context.metadata.get("headers", {}))
             timeout = context.metadata.get("timeout", self._timeout)
@@ -61,6 +65,7 @@ class ReadabilityExtractor(BaseExtractor):
             "url": context.url,
             **context.metadata,
         }
+        metadata.pop("html", None)
 
         return ExtractionResult(content=text, succeeded=bool(text.strip()), metadata=metadata)
 
