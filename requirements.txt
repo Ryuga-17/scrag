@@ -1,2 +1,5 @@
+requests
+readability-lxml
+pytest
 newspaper3k
 lxml[html_clean]
