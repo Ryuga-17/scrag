@@ -23,26 +23,34 @@ class ReadabilityExtractor(BaseExtractor):
         self._timeout = timeout
 
     def supports(self, context: ExtractionContext) -> bool:
-        return bool(context.url)
+        return bool(context.url or context.html)
 
     def extract(self, context: ExtractionContext) -> ExtractionResult:
-        if not context.url:
-            return ExtractionResult(content="", succeeded=False, metadata={"reason": "missing_url"})
+        # if not context.url:
+        #     return ExtractionResult(content="", succeeded=False, metadata={"reason": "missing_url"})
 
         if Document is None:
             message = "readability-lxml is not installed; install 'readability-lxml' to enable this extractor."
             return ExtractionResult(content="", succeeded=False, metadata={"reason": message})
 
-        headers = {"User-Agent": self._user_agent}
-        headers.update(context.metadata.get("headers", {}))
-        timeout = context.metadata.get("timeout", self._timeout)
+        html = context.html
+        # url = context.url
 
-        try:
-            response = requests.get(context.url, headers=headers, timeout=timeout)
-            response.raise_for_status()
-        except requests.RequestException as error:  # pragma: no cover - network errors not deterministic
-            return ExtractionResult(content="", succeeded=False, metadata={"reason": str(error)})
+        if not context.html and context.url:
+            headers = {"User-Agent": self._user_agent}
+            headers.update(context.metadata.get("headers", {}))
+            timeout = context.metadata.get("timeout", self._timeout)
 
+            try:
+                response = requests.get(context.url, headers=headers, timeout=timeout)
+                response.raise_for_status()
+                context.html = response.text
+            except requests.RequestException as error:  # pragma: no cover - network errors not deterministic
+                return ExtractionResult(content="", succeeded=False, metadata={"reason": str(error)})
+
+        elif not context.html:
+            return ExtractionResult(content="", succeeded=False, metadata={"reason": "no_html_or_url"})
+        
         document = Document(response.text)
         title = document.short_title()
         summary_html = document.summary()
@@ -51,6 +59,7 @@ class ReadabilityExtractor(BaseExtractor):
         metadata: Dict[str, Any] = {
             "extractor": self.name,
             "title": title,
+            "url": context.url,
             **context.metadata,
         }
 
