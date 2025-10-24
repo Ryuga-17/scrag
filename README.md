@@ -107,6 +107,8 @@ For detailed architecture information, see [ARCHITECTURE.md](ARCHITECTURE.md).
  uv sync
  uv pip install -e src/scrag
 
+> **Note:** This project uses `uv` as the canonical dependency manager. Dependencies are defined in `src/scrag/pyproject.toml` and managed via `uv.lock`. Do not use `pip install -r requirements.txt` as the root `requirements.txt` has been removed to avoid conflicts.
+
 # 4) Verify the CLI
  uv run scrag info
 ```
