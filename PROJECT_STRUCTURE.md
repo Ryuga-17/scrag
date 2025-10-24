@@ -56,31 +56,37 @@ scrag/
 
 ## Key Architectural Decisions
 
-### 1. Modular Design
+### 1. Dependency Management
+- **Canonical Source**: Dependencies are defined in `src/scrag/pyproject.toml`
+- **Package Manager**: Uses `uv` for dependency resolution and virtual environment management
+- **Lock File**: `src/scrag/uv.lock` ensures reproducible builds
+- **No requirements.txt**: Root `requirements.txt` has been removed to avoid conflicts with `pyproject.toml`
+
+### 2. Modular Design
 - **Extractors**: Pluggable content extraction strategies
 - **Processors**: Composable text processing pipeline
 - **Storage**: Flexible storage backend adapters
 - **RAG**: Specialized RAG pipeline components
 
-### 2. Configuration-Driven
+### 3. Configuration-Driven
 - Hierarchical configuration system
 - Environment-specific overrides
 - Runtime parameter support
 - Validation and schema enforcement
 
-### 3. Extensibility Focus
+### 4. Extensibility Focus
 - Clear interfaces for new components
 - Template-based extension patterns
 - Plugin architecture support
 - Factory patterns for component creation
 
-### 4. Testing Strategy
+### 5. Testing Strategy
 - Unit tests for individual components
 - Integration tests for workflows
 - Performance benchmarks
 - Comprehensive test fixtures
 
-### 5. Documentation-First
+### 6. Documentation-First
 - Architecture documentation (ARCHITECTURE.md)
 - API reference generation
 - User guides and tutorials

@@ -28,6 +28,8 @@ uv pip install -e src/scrag
 
 `uv sync` resolves the lockfile `uv.lock` (if present) and installs toolchain requirements. The editable install exposes the `scrag` CLI entry point.
 
+> **Dependency Management:** This project uses `uv` as the canonical dependency manager. All dependencies are defined in `src/scrag/pyproject.toml` and managed via `uv.lock`. Do not use `pip install -r requirements.txt` as the root `requirements.txt` has been removed to avoid conflicts.
+
 ### 3. Verify the CLI
 
 ```bash
