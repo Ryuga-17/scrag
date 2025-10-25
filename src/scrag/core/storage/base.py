@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
@@ -66,12 +66,17 @@ class InMemoryStorage(BaseStorageAdapter):
 class FileStorage(BaseStorageAdapter):
     """Persist content to disk for future retrieval."""
 
+    SUPPORTED_FORMATS = {"json", "txt", "ndjson", "md"}
+
     def __init__(self, directory: Path, *, format: str = "json", filename: Optional[str] = None) -> None:
         super().__init__(name="file")
         self._directory = directory
-        self._format = format
+        self._format = format.lower()
         self._filename_override = filename
         self._directory.mkdir(parents=True, exist_ok=True)
+        
+        if self._format not in self.SUPPORTED_FORMATS:
+            raise ValueError(f"Unsupported format '{self._format}'. Supported formats: {', '.join(sorted(self.SUPPORTED_FORMATS))}")
 
     def store(self, context: StorageContext) -> StorageResult:
         filename = (
@@ -85,10 +90,36 @@ class FileStorage(BaseStorageAdapter):
             payload = {
                 "content": context.content,
                 "metadata": context.metadata,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
             path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf8")
-        else:
+        elif self._format == "ndjson":
+            # Create line-delimited JSON where each line is a separate JSON object
+            # For ndjson, we write each field as a separate JSON object on its own line
+            timestamp = datetime.now(timezone.utc).isoformat()
+            lines = [
+                json.dumps({"content": context.content}, ensure_ascii=False),
+                json.dumps({"metadata": context.metadata}, ensure_ascii=False),
+                json.dumps({"timestamp": timestamp}, ensure_ascii=False),
+            ]
+            path.write_text("\n".join(lines), encoding="utf8")
+        elif self._format == "md":
+            # Create markdown format with content and metadata
+            md_content = []
+            if context.metadata.get("title"):
+                md_content.append(f"# {context.metadata['title']}\n")
+            if context.metadata.get("url"):
+                md_content.append(f"**Source URL:** {context.metadata['url']}\n")
+            if context.metadata.get("author"):
+                md_content.append(f"**Author:** {context.metadata['author']}\n")
+            if context.metadata.get("date"):
+                md_content.append(f"**Date:** {context.metadata['date']}\n")
+            
+            md_content.append("---\n\n")
+            md_content.append(context.content)
+            
+            path.write_text("".join(md_content), encoding="utf8")
+        else:  # txt format
             path.write_text(context.content, encoding="utf8")
 
         meta = {"storage": self.name, "path": str(path), **context.metadata}
@@ -119,7 +150,7 @@ def _build_filename(metadata: Dict[str, Any]) -> str:
     base = base.strip().lower() or "scrag-output"
     base = re.sub(r"[^a-z0-9]+", "-", base)
     base = base.strip("-") or "scrag-output"
-    suffix = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+    suffix = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
     return f"{base}-{suffix}"
 
 
