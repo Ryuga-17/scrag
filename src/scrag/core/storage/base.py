@@ -95,16 +95,13 @@ class FileStorage(BaseStorageAdapter):
             path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf8")
         elif self._format == "ndjson":
             # Create line-delimited JSON where each line is a separate JSON object
-            payload = {
-                "content": context.content,
-                "metadata": context.metadata,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-            }
             # For ndjson, we write each field as a separate JSON object on its own line
-            lines = []
-            lines.append(json.dumps({"content": context.content}, ensure_ascii=False))
-            lines.append(json.dumps({"metadata": context.metadata}, ensure_ascii=False))
-            lines.append(json.dumps({"timestamp": datetime.now(timezone.utc).isoformat()}, ensure_ascii=False))
+            timestamp = datetime.now(timezone.utc).isoformat()
+            lines = [
+                json.dumps({"content": context.content}, ensure_ascii=False),
+                json.dumps({"metadata": context.metadata}, ensure_ascii=False),
+                json.dumps({"timestamp": timestamp}, ensure_ascii=False),
+            ]
             path.write_text("\n".join(lines), encoding="utf8")
         elif self._format == "md":
             # Create markdown format with content and metadata
