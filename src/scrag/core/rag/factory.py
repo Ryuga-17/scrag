@@ -6,11 +6,11 @@ from typing import Dict, Any, Optional
 from pathlib import Path
 import logging
 
-from core.utils import ScragConfig
+from scrag.core.utils import ScragConfig
 from .embedders import BaseEmbedder, SentenceTransformerEmbedder, OpenAIEmbedder
 from .stores import IndexStore, FileIndexStore
 from .stages import EmbedStage, IndexStage, RetrievalStage
-from core.processors.chunking import ChunkingProcessor
+from scrag.core.processors.chunking import ChunkingProcessor
 
 logger = logging.getLogger(__name__)
 

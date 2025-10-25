@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Dict, Any, List, Optional
 import logging
 
-from core.processors.base import BaseProcessor, ProcessingContext, ProcessingResult
+from scrag.core.processors.base import BaseProcessor, ProcessingContext, ProcessingResult
 from .embedders import BaseEmbedder, EmbeddingContext
 from .stores import IndexStore, SearchQuery, SearchResult
 

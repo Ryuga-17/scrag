@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Tuple
 import logging
 
-from core.pipeline.stages import PipelineStage, StageContext, StageResult
+from scrag.core.pipeline.stages import PipelineStage, StageContext, StageResult
 from ..stores import IndexStore, IndexDocument
 
 logger = logging.getLogger(__name__)

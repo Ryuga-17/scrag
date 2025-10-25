@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 import logging
 
-from core.pipeline.stages import PipelineStage, StageContext, StageResult
+from scrag.core.pipeline.stages import PipelineStage, StageContext, StageResult
 from ..embedders import BaseEmbedder, EmbeddingContext
 
 logger = logging.getLogger(__name__)

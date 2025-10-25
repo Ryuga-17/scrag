@@ -6,17 +6,18 @@ from pathlib import Path
 from urllib.parse import urlparse
 from typing import Optional, List
 import json
+import sys
 
 import typer
 
-from core import __version__
-from core.pipeline import PipelineRunner
-from core.utils import ScragConfig, load_config
-from core.rag.embedders import SentenceTransformerEmbedder, OpenAIEmbedder
-from core.rag.stores import FileIndexStore
-from core.rag.stages import EmbedStage, IndexStage, RetrievalStage
-from core.rag.pipeline import RAGPipelineRunner
-from core.pipeline.stages import StageContext
+from scrag.core import __version__
+from scrag.core.utils import ScragConfig, load_config
+from scrag.core.rag.embedders import SentenceTransformerEmbedder, OpenAIEmbedder
+from scrag.core.rag.stores import FileIndexStore
+from scrag.core.rag.stages import EmbedStage, IndexStage, RetrievalStage
+from scrag.core.rag.pipeline import RAGPipelineRunner
+from scrag.core.pipeline.stages import StageContext
+from scrag.core.pipeline import PipelineRunner
 
 app = typer.Typer(help="Adaptive scraping toolkit for RAG pipelines.")
 
@@ -145,12 +146,12 @@ def embed(
                 content = f.read()
             
             # Chunk the content
-            from core.processors.chunking import ChunkingProcessor
+            from scrag.core.processors.chunking import ChunkingProcessor
             chunker = ChunkingProcessor(
                 chunk_size=chunk_size,
                 chunk_overlap=chunk_overlap
             )
-            from core.processors.base import ProcessingContext
+            from scrag.core.processors.base import ProcessingContext
             
             context = ProcessingContext(content=content)
             result = chunker.process(context)
@@ -432,6 +433,199 @@ def _normalize_target_url(raw_url: str) -> str:
         return candidate
 
     raise typer.BadParameter("URL must include a valid hostname")
+
+
+@app.command()
+def test_pipeline(
+    url: str = typer.Argument(..., help="URL to test the RAG pipeline with."),
+    work_dir: Path = typer.Option(Path("./test_rag"), "--work-dir", "-w", help="Working directory for test files."),
+    config_dir: Optional[Path] = typer.Option(None, help="Configuration directory location."),
+    environment: Optional[str] = typer.Option(None, help="Configuration environment name."),
+) -> None:
+    """Test the RAG pipeline step by step: query -> search -> fetch -> process -> embed -> index -> retrieve."""
+    
+    try:
+        # Create working directory
+        work_dir.mkdir(parents=True, exist_ok=True)
+        
+        typer.echo("🚀 Testing RAG Pipeline Step by Step")
+        typer.echo("=" * 50)
+        
+        # Load configuration
+        config = _resolve_config(config_dir=config_dir, environment=environment)
+        
+        # Step 1: Search & Fetch (Extract)
+        typer.echo("\n📥 Step 1: SEARCH & FETCH")
+        typer.echo(f"Extracting content from: {url}")
+        
+        runner = PipelineRunner(config)
+        extraction_result = runner.run(url=url)
+        
+        if not extraction_result.content:
+            typer.echo("❌ Failed to extract content", err=True)
+            raise typer.Exit(1)
+        
+        # Save raw content
+        raw_content_file = work_dir / "1_raw_content.txt"
+        with open(raw_content_file, 'w', encoding='utf-8') as f:
+            f.write(extraction_result.content)
+        
+        typer.echo(f"✅ Extracted {len(extraction_result.content)} characters")
+        typer.echo(f"📁 Saved to: {raw_content_file}")
+        
+        # Step 2: Process (Chunk)
+        typer.echo("\n⚙️ Step 2: PROCESS (Chunking)")
+        
+        from scrag.core.processors.chunking import ChunkingProcessor
+        from scrag.core.processors.base import ProcessingContext
+        
+        chunker = ChunkingProcessor(
+            chunk_size=512,
+            chunk_overlap=50,
+            preserve_sentences=True
+        )
+        
+        context = ProcessingContext(
+            content=extraction_result.content,
+            metadata={"url": url, "extractor": extraction_result.extractor}
+        )
+        chunking_result = chunker.process(context)
+        chunks = chunking_result.metadata.get('chunks', [])
+        
+        # Save chunks
+        chunks_file = work_dir / "2_chunks.json"
+        with open(chunks_file, 'w', encoding='utf-8') as f:
+            json.dump({
+                "chunks": chunks,
+                "metadata": chunking_result.metadata
+            }, f, indent=2, ensure_ascii=False)
+        
+        typer.echo(f"✅ Created {len(chunks)} chunks")
+        typer.echo(f"📁 Saved to: {chunks_file}")
+        
+        # Step 3: Embed
+        typer.echo("\n🧠 Step 3: EMBED")
+        
+        embedder = SentenceTransformerEmbedder(model_name="all-MiniLM-L6-v2")
+        
+        if not embedder.is_available:
+            typer.echo("⚠️ SentenceTransformers not available, skipping embedding test")
+            typer.echo("Install with: pip install sentence-transformers")
+        else:
+            embed_stage = EmbedStage(embedder=embedder)
+            stage_context = StageContext(data=chunks, metadata=chunking_result.metadata)
+            embed_result = embed_stage.process(stage_context)
+            
+            if not embed_result.success:
+                typer.echo(f"❌ Embedding failed: {embed_result.error_message}", err=True)
+                raise typer.Exit(1)
+            
+            # Save embeddings
+            embeddings_file = work_dir / "3_embeddings.json"
+            with open(embeddings_file, 'w', encoding='utf-8') as f:
+                json.dump({
+                    "chunks": chunks,
+                    "embeddings": embed_result.data,
+                    "metadata": embed_result.metadata
+                }, f, indent=2, ensure_ascii=False)
+            
+            typer.echo(f"✅ Generated {len(embed_result.data)} embeddings")
+            typer.echo(f"📁 Saved to: {embeddings_file}")
+            
+            # Step 4: Index
+            typer.echo("\n🗂️ Step 4: INDEX")
+            
+            index_path = work_dir / "4_index.json"
+            index_store = FileIndexStore(
+                index_path=index_path,
+                embedding_dimension=embedder.get_embedding_dimension()
+            )
+            
+            index_stage = IndexStage(index_store=index_store)
+            index_context = StageContext(
+                data=(chunks, embed_result.data),
+                metadata=embed_result.metadata
+            )
+            index_result = index_stage.process(index_context)
+            
+            if not index_result.success:
+                typer.echo(f"❌ Indexing failed: {index_result.error_message}", err=True)
+                raise typer.Exit(1)
+            
+            stats = index_result.metadata.get('index_stats', {})
+            typer.echo(f"✅ Built index with {stats.get('total_documents', len(chunks))} documents")
+            typer.echo(f"📁 Saved to: {index_path}")
+            
+            # Step 5: Query & Retrieve
+            typer.echo("\n🔍 Step 5: QUERY & RETRIEVE")
+            
+            # Test queries
+            test_queries = [
+                "What is the main topic?",
+                "machine learning",
+                "artificial intelligence"
+            ]
+            
+            retrieval_stage = RetrievalStage(
+                embedder=embedder,
+                index_store=index_store,
+                top_k=3
+            )
+            
+            query_results = []
+            for i, query in enumerate(test_queries):
+                typer.echo(f"\n🔎 Query {i+1}: '{query}'")
+                
+                query_context = StageContext(
+                    data=query,
+                    stage_config={"top_k": 3, "include_scores": True}
+                )
+                
+                result = retrieval_stage.process(query_context)
+                
+                if result.success:
+                    query_data = result.data
+                    typer.echo(f"   📊 Found {query_data['result_count']} results")
+                    
+                    for j, res in enumerate(query_data['results'][:2]):  # Show top 2
+                        score = res.get('score', 0)
+                        content_preview = res['content'][:100] + "..." if len(res['content']) > 100 else res['content']
+                        typer.echo(f"   {j+1}. Score: {score:.3f} - {content_preview}")
+                    
+                    query_results.append({
+                        "query": query,
+                        "results": query_data
+                    })
+                else:
+                    typer.echo(f"   ❌ Query failed: {result.error_message}")
+            
+            # Save query results
+            queries_file = work_dir / "5_query_results.json"
+            with open(queries_file, 'w', encoding='utf-8') as f:
+                json.dump(query_results, f, indent=2, ensure_ascii=False)
+            
+            typer.echo(f"\n📁 Query results saved to: {queries_file}")
+        
+        # Summary
+        typer.echo("\n🎉 RAG Pipeline Test Complete!")
+        typer.echo("=" * 50)
+        typer.echo(f"📂 All test files saved in: {work_dir}")
+        typer.echo("\nFiles created:")
+        typer.echo(f"  1. {raw_content_file.name} - Raw extracted content")
+        typer.echo(f"  2. {chunks_file.name} - Processed chunks")
+        if embedder.is_available:
+            typer.echo(f"  3. {embeddings_file.name} - Generated embeddings")
+            typer.echo(f"  4. {index_path.name} - Searchable index")
+            typer.echo(f"  5. {queries_file.name} - Query test results")
+        
+        typer.echo("\n📖 Next steps:")
+        typer.echo("  - Examine the generated files to understand each step")
+        typer.echo("  - Try custom queries with: scrag query 'your question' <index_file>")
+        typer.echo("  - Modify chunk sizes and test different parameters")
+        
+    except Exception as e:
+        typer.echo(f"❌ Pipeline test failed: {e}", err=True)
+        raise typer.Exit(1)
 
 
 def main() -> None:

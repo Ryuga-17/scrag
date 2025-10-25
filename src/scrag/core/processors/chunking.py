@@ -6,7 +6,7 @@ from typing import Dict, Any, List
 import re
 import logging
 
-from core.processors.base import BaseProcessor, ProcessingContext, ProcessingResult
+from scrag.core.processors.base import BaseProcessor, ProcessingContext, ProcessingResult
 
 logger = logging.getLogger(__name__)
 

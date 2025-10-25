@@ -7,9 +7,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 import logging
 
-from core.utils import ScragConfig
-from core.pipeline.stages import StageContext
-from core.processors.base import ProcessingContext
+from scrag.core.utils import ScragConfig
+from scrag.core.pipeline.stages import StageContext
+from scrag.core.processors.base import ProcessingContext
 from .factory import (
     build_chunking_processor,
     build_embed_stage, 
@@ -161,7 +161,14 @@ class RAGPipelineRunner:
         """Extract content from URL and build RAG index."""
         try:
             # Use existing pipeline to extract content
-            from core.pipeline import PipelineRunner
+            import importlib.util
+            
+            # Import PipelineRunner from the pipeline.py file
+            pipeline_file = Path(__file__).parent.parent / "pipeline.py"
+            spec = importlib.util.spec_from_file_location("pipeline_module", pipeline_file)
+            pipeline_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(pipeline_module)
+            PipelineRunner = pipeline_module.PipelineRunner
             
             pipeline_runner = PipelineRunner(self.config)
             extraction_result = pipeline_runner.run(url=url)

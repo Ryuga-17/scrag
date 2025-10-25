@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 import logging
 
-from core.pipeline.stages import PipelineStage, StageContext, StageResult
+from scrag.core.pipeline.stages import PipelineStage, StageContext, StageResult
 from ..query import RAGQueryManager
 from ..embedders import BaseEmbedder
 from ..stores import IndexStore
