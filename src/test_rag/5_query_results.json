@@ -1,0 +1,323 @@
+[
+  {
+    "query": "What is the main topic?",
+    "results": {
+      "query": "What is the main topic?",
+      "retrieved_content": "[Result 1, Score: 0.294]\nto cause it to reevaluate incorrect decisions. [ 12 ] A representative book on research into machine learning during the 1960s was Nils Nilsson 's book on Learning Machines, dealing mostly with machine learning for pattern classification. [ 13 ] Interest related to pattern recognition continued into the 1970s, as described by Duda and Hart in 1973.\n\n---\n\n[Result 2, Score: 0.290]\nand effort to study human cognitive processes. [ 10 ] In 1949, Canadian psychologist Donald Hebb published the book The Organization of Behavior , in which he introduced a theoretical neural structure formed by certain interactions among nerve cells . [ 11 ] Hebb's model of neurons interacting with one another set a groundwork for how AIs and machine learning algorithms work under nodes, or artificial neurons used by computers to communicate data.\n\n---\n\n[Result 3, Score: 0.290]\nMassachusetts: MIT Press. ISBN 9780262018258 . ^ Alpaydin, Ethem (2010). Introduction to Machine Learning . London: The MIT Press. ISBN 978-0-262-01243-0 . Retrieved 4 February 2017 . ^ Jordan, M. I.; Mitchell, T. M. (17 July 2015). \"Machine learning: Trends, perspectives, and prospects\". Science . 349 (6245): 255– 260. Bibcode : 2015Sci...349..255J . doi : 10.1126/science.aaa8415 . PMID 26185243 . S2CID 677218 . ^ El Naqa, Issam; Murphy, Martin J. (2015). \"What is Machine Learning?\".",
+      "results": [
+        {
+          "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_11",
+          "content": "to cause it to reevaluate incorrect decisions. [ 12 ] A representative book on research into machine learning during the 1960s was Nils Nilsson 's book on Learning Machines, dealing mostly with machine learning for pattern classification. [ 13 ] Interest related to pattern recognition continued into the 1970s, as described by Duda and Hart in 1973.",
+          "metadata": {
+            "url": "https://en.wikipedia.org/wiki/Machine_learning",
+            "extractor": "http",
+            "chunk_id": 11,
+            "chunk_size": 350,
+            "total_chunks": 286,
+            "overlap_size": 50,
+            "chunk_index": 11
+          },
+          "score": 0.29387185336787197
+        },
+        {
+          "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_8",
+          "content": "and effort to study human cognitive processes. [ 10 ] In 1949, Canadian psychologist Donald Hebb published the book The Organization of Behavior , in which he introduced a theoretical neural structure formed by certain interactions among nerve cells . [ 11 ] Hebb's model of neurons interacting with one another set a groundwork for how AIs and machine learning algorithms work under nodes, or artificial neurons used by computers to communicate data.",
+          "metadata": {
+            "url": "https://en.wikipedia.org/wiki/Machine_learning",
+            "extractor": "http",
+            "chunk_id": 8,
+            "chunk_size": 451,
+            "total_chunks": 286,
+            "overlap_size": 50,
+            "chunk_index": 8
+          },
+          "score": 0.2902177212325251
+        },
+        {
+          "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_198",
+          "content": "Massachusetts: MIT Press. ISBN 9780262018258 . ^ Alpaydin, Ethem (2010). Introduction to Machine Learning . London: The MIT Press. ISBN 978-0-262-01243-0 . Retrieved 4 February 2017 . ^ Jordan, M. I.; Mitchell, T. M. (17 July 2015). \"Machine learning: Trends, perspectives, and prospects\". Science . 349 (6245): 255– 260. Bibcode : 2015Sci...349..255J . doi : 10.1126/science.aaa8415 . PMID 26185243 . S2CID 677218 . ^ El Naqa, Issam; Murphy, Martin J. (2015). \"What is Machine Learning?\".",
+          "metadata": {
+            "url": "https://en.wikipedia.org/wiki/Machine_learning",
+            "extractor": "http",
+            "chunk_id": 198,
+            "chunk_size": 489,
+            "total_chunks": 286,
+            "overlap_size": 50,
+            "chunk_index": 198
+          },
+          "score": 0.28957384459053526
+        }
+      ],
+      "result_count": 3,
+      "success": true,
+      "error": null,
+      "metadata": {
+        "filters": {},
+        "query": "What is the main topic?",
+        "results": [
+          {
+            "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_11",
+            "content": "to cause it to reevaluate incorrect decisions. [ 12 ] A representative book on research into machine learning during the 1960s was Nils Nilsson 's book on Learning Machines, dealing mostly with machine learning for pattern classification. [ 13 ] Interest related to pattern recognition continued into the 1970s, as described by Duda and Hart in 1973.",
+            "metadata": {
+              "url": "https://en.wikipedia.org/wiki/Machine_learning",
+              "extractor": "http",
+              "chunk_id": 11,
+              "chunk_size": 350,
+              "total_chunks": 286,
+              "overlap_size": 50,
+              "chunk_index": 11
+            },
+            "score": 0.29387185336787197
+          },
+          {
+            "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_8",
+            "content": "and effort to study human cognitive processes. [ 10 ] In 1949, Canadian psychologist Donald Hebb published the book The Organization of Behavior , in which he introduced a theoretical neural structure formed by certain interactions among nerve cells . [ 11 ] Hebb's model of neurons interacting with one another set a groundwork for how AIs and machine learning algorithms work under nodes, or artificial neurons used by computers to communicate data.",
+            "metadata": {
+              "url": "https://en.wikipedia.org/wiki/Machine_learning",
+              "extractor": "http",
+              "chunk_id": 8,
+              "chunk_size": 451,
+              "total_chunks": 286,
+              "overlap_size": 50,
+              "chunk_index": 8
+            },
+            "score": 0.2902177212325251
+          },
+          {
+            "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_198",
+            "content": "Massachusetts: MIT Press. ISBN 9780262018258 . ^ Alpaydin, Ethem (2010). Introduction to Machine Learning . London: The MIT Press. ISBN 978-0-262-01243-0 . Retrieved 4 February 2017 . ^ Jordan, M. I.; Mitchell, T. M. (17 July 2015). \"Machine learning: Trends, perspectives, and prospects\". Science . 349 (6245): 255– 260. Bibcode : 2015Sci...349..255J . doi : 10.1126/science.aaa8415 . PMID 26185243 . S2CID 677218 . ^ El Naqa, Issam; Murphy, Martin J. (2015). \"What is Machine Learning?\".",
+            "metadata": {
+              "url": "https://en.wikipedia.org/wiki/Machine_learning",
+              "extractor": "http",
+              "chunk_id": 198,
+              "chunk_size": 489,
+              "total_chunks": 286,
+              "overlap_size": 50,
+              "chunk_index": 198
+            },
+            "score": 0.28957384459053526
+          }
+        ],
+        "result_count": 3,
+        "top_k": 3,
+        "threshold": 0.0,
+        "embedder": "sentence_transformer",
+        "index_store": "file_store"
+      }
+    }
+  },
+  {
+    "query": "machine learning",
+    "results": {
+      "query": "machine learning",
+      "retrieved_content": "[Result 1, Score: 0.590]\nperform tasks without explicit instructions . [ 1 ] Within a subdiscipline in machine learning, advances in the field of deep learning have allowed neural networks , a class of statistical algorithms, to surpass many previous machine learning approaches in performance. [ 2 ] ML finds application in many fields, including natural language processing , computer vision , speech recognition , email filtering , agriculture , and medicine .\n\n---\n\n[Result 2, Score: 0.579]\non AI . Witten, Ian H. & Frank, Eibe (2011). Data Mining: Practical machine learning tools and techniques Morgan Kaufmann, 664pp., ISBN 978-0-12-374856-0 . External links [ edit ] International Machine Learning Society mloss is an academic database of open-source machine learning software.\n\n---\n\n[Result 3, Score: 0.574]\npatterns or structures in unlabelled data. Machine learning approaches are traditionally divided into three broad categories, which correspond to learning paradigms, depending on the nature of the \"signal\" or \"feedback\" available to the learning system: Supervised learning : The computer is presented with example inputs and their desired outputs, given by a \"teacher\", and the goal is to learn a general rule that maps inputs to outputs.",
+      "results": [
+        {
+          "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_3",
+          "content": "perform tasks without explicit instructions . [ 1 ] Within a subdiscipline in machine learning, advances in the field of deep learning have allowed neural networks , a class of statistical algorithms, to surpass many previous machine learning approaches in performance. [ 2 ] ML finds application in many fields, including natural language processing , computer vision , speech recognition , email filtering , agriculture , and medicine .",
+          "metadata": {
+            "url": "https://en.wikipedia.org/wiki/Machine_learning",
+            "extractor": "http",
+            "chunk_id": 3,
+            "chunk_size": 438,
+            "total_chunks": 286,
+            "overlap_size": 50,
+            "chunk_index": 3
+          },
+          "score": 0.5897153838560872
+        },
+        {
+          "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_278",
+          "content": "on AI . Witten, Ian H. & Frank, Eibe (2011). Data Mining: Practical machine learning tools and techniques Morgan Kaufmann, 664pp., ISBN 978-0-12-374856-0 . External links [ edit ] International Machine Learning Society mloss is an academic database of open-source machine learning software.",
+          "metadata": {
+            "url": "https://en.wikipedia.org/wiki/Machine_learning",
+            "extractor": "http",
+            "chunk_id": 278,
+            "chunk_size": 290,
+            "total_chunks": 286,
+            "overlap_size": 50,
+            "chunk_index": 278
+          },
+          "score": 0.5788087594038029
+        },
+        {
+          "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_47",
+          "content": "patterns or structures in unlabelled data. Machine learning approaches are traditionally divided into three broad categories, which correspond to learning paradigms, depending on the nature of the \"signal\" or \"feedback\" available to the learning system: Supervised learning : The computer is presented with example inputs and their desired outputs, given by a \"teacher\", and the goal is to learn a general rule that maps inputs to outputs.",
+          "metadata": {
+            "url": "https://en.wikipedia.org/wiki/Machine_learning",
+            "extractor": "http",
+            "chunk_id": 47,
+            "chunk_size": 439,
+            "total_chunks": 286,
+            "overlap_size": 50,
+            "chunk_index": 47
+          },
+          "score": 0.5739948829596702
+        }
+      ],
+      "result_count": 3,
+      "success": true,
+      "error": null,
+      "metadata": {
+        "filters": {},
+        "query": "machine learning",
+        "results": [
+          {
+            "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_3",
+            "content": "perform tasks without explicit instructions . [ 1 ] Within a subdiscipline in machine learning, advances in the field of deep learning have allowed neural networks , a class of statistical algorithms, to surpass many previous machine learning approaches in performance. [ 2 ] ML finds application in many fields, including natural language processing , computer vision , speech recognition , email filtering , agriculture , and medicine .",
+            "metadata": {
+              "url": "https://en.wikipedia.org/wiki/Machine_learning",
+              "extractor": "http",
+              "chunk_id": 3,
+              "chunk_size": 438,
+              "total_chunks": 286,
+              "overlap_size": 50,
+              "chunk_index": 3
+            },
+            "score": 0.5897153838560872
+          },
+          {
+            "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_278",
+            "content": "on AI . Witten, Ian H. & Frank, Eibe (2011). Data Mining: Practical machine learning tools and techniques Morgan Kaufmann, 664pp., ISBN 978-0-12-374856-0 . External links [ edit ] International Machine Learning Society mloss is an academic database of open-source machine learning software.",
+            "metadata": {
+              "url": "https://en.wikipedia.org/wiki/Machine_learning",
+              "extractor": "http",
+              "chunk_id": 278,
+              "chunk_size": 290,
+              "total_chunks": 286,
+              "overlap_size": 50,
+              "chunk_index": 278
+            },
+            "score": 0.5788087594038029
+          },
+          {
+            "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_47",
+            "content": "patterns or structures in unlabelled data. Machine learning approaches are traditionally divided into three broad categories, which correspond to learning paradigms, depending on the nature of the \"signal\" or \"feedback\" available to the learning system: Supervised learning : The computer is presented with example inputs and their desired outputs, given by a \"teacher\", and the goal is to learn a general rule that maps inputs to outputs.",
+            "metadata": {
+              "url": "https://en.wikipedia.org/wiki/Machine_learning",
+              "extractor": "http",
+              "chunk_id": 47,
+              "chunk_size": 439,
+              "total_chunks": 286,
+              "overlap_size": 50,
+              "chunk_index": 47
+            },
+            "score": 0.5739948829596702
+          }
+        ],
+        "result_count": 3,
+        "top_k": 3,
+        "threshold": 0.0,
+        "embedder": "sentence_transformer",
+        "index_store": "file_store"
+      }
+    }
+  },
+  {
+    "query": "artificial intelligence",
+    "results": {
+      "query": "artificial intelligence",
+      "retrieved_content": "[Result 1, Score: 0.533]\nthan defining the field in cognitive terms. This follows Alan Turing 's proposal in his paper \" Computing Machinery and Intelligence \", in which the question, \"Can machines think?\", is replaced with the question, \"Can machines do what we (as thinking entities) can do?\". [ 17 ] Modern day Machine Learning algorithms are broken into 3 algorithms types: Supervised Learning Algorithms, Unsupervised Learning Algorithms, and Reinforcement Learning Algorithms.\n\n---\n\n[Result 2, Score: 0.518]\nespecially in automated medical diagnosis . [ 24 ] : 488 However, an increasing emphasis on the logical, knowledge-based approach caused a rift between AI and machine learning. Probabilistic systems were plagued by theoretical and practical problems of data acquisition and representation. [ 24 ] : 488 By 1980, expert systems had come to dominate AI, and statistics was out of favour.\n\n---\n\n[Result 3, Score: 0.517]\nand may be a paraphrase that appeared later. Confer \"Paraphrasing Arthur Samuel (1959), the question is: How can computers learn to solve problems without being explicitly programmed?\" in Koza, John R.; Bennett, Forrest H.; Andre, David; Keane, Martin A. (1996). \"Automated Design of Both the Topology and Sizing of Analog Electrical Circuits Using Genetic Programming\". Artificial Intelligence in Design '96 . Artificial Intelligence in Design '96. Dordrecht, Netherlands: Springer Netherlands. pp. 151– 170.",
+      "results": [
+        {
+          "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_14",
+          "content": "than defining the field in cognitive terms. This follows Alan Turing 's proposal in his paper \" Computing Machinery and Intelligence \", in which the question, \"Can machines think?\", is replaced with the question, \"Can machines do what we (as thinking entities) can do?\". [ 17 ] Modern day Machine Learning algorithms are broken into 3 algorithms types: Supervised Learning Algorithms, Unsupervised Learning Algorithms, and Reinforcement Learning Algorithms.",
+          "metadata": {
+            "url": "https://en.wikipedia.org/wiki/Machine_learning",
+            "extractor": "http",
+            "chunk_id": 14,
+            "chunk_size": 457,
+            "total_chunks": 286,
+            "overlap_size": 50,
+            "chunk_index": 14
+          },
+          "score": 0.5325649847885593
+        },
+        {
+          "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_19",
+          "content": "especially in automated medical diagnosis . [ 24 ] : 488 However, an increasing emphasis on the logical, knowledge-based approach caused a rift between AI and machine learning. Probabilistic systems were plagued by theoretical and practical problems of data acquisition and representation. [ 24 ] : 488 By 1980, expert systems had come to dominate AI, and statistics was out of favour.",
+          "metadata": {
+            "url": "https://en.wikipedia.org/wiki/Machine_learning",
+            "extractor": "http",
+            "chunk_id": 19,
+            "chunk_size": 385,
+            "total_chunks": 286,
+            "overlap_size": 50,
+            "chunk_index": 19
+          },
+          "score": 0.5179699716179604
+        },
+        {
+          "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_178",
+          "content": "and may be a paraphrase that appeared later. Confer \"Paraphrasing Arthur Samuel (1959), the question is: How can computers learn to solve problems without being explicitly programmed?\" in Koza, John R.; Bennett, Forrest H.; Andre, David; Keane, Martin A. (1996). \"Automated Design of Both the Topology and Sizing of Analog Electrical Circuits Using Genetic Programming\". Artificial Intelligence in Design '96 . Artificial Intelligence in Design '96. Dordrecht, Netherlands: Springer Netherlands. pp. 151– 170.",
+          "metadata": {
+            "url": "https://en.wikipedia.org/wiki/Machine_learning",
+            "extractor": "http",
+            "chunk_id": 178,
+            "chunk_size": 509,
+            "total_chunks": 286,
+            "overlap_size": 50,
+            "chunk_index": 178
+          },
+          "score": 0.516591204636555
+        }
+      ],
+      "result_count": 3,
+      "success": true,
+      "error": null,
+      "metadata": {
+        "filters": {},
+        "query": "artificial intelligence",
+        "results": [
+          {
+            "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_14",
+            "content": "than defining the field in cognitive terms. This follows Alan Turing 's proposal in his paper \" Computing Machinery and Intelligence \", in which the question, \"Can machines think?\", is replaced with the question, \"Can machines do what we (as thinking entities) can do?\". [ 17 ] Modern day Machine Learning algorithms are broken into 3 algorithms types: Supervised Learning Algorithms, Unsupervised Learning Algorithms, and Reinforcement Learning Algorithms.",
+            "metadata": {
+              "url": "https://en.wikipedia.org/wiki/Machine_learning",
+              "extractor": "http",
+              "chunk_id": 14,
+              "chunk_size": 457,
+              "total_chunks": 286,
+              "overlap_size": 50,
+              "chunk_index": 14
+            },
+            "score": 0.5325649847885593
+          },
+          {
+            "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_19",
+            "content": "especially in automated medical diagnosis . [ 24 ] : 488 However, an increasing emphasis on the logical, knowledge-based approach caused a rift between AI and machine learning. Probabilistic systems were plagued by theoretical and practical problems of data acquisition and representation. [ 24 ] : 488 By 1980, expert systems had come to dominate AI, and statistics was out of favour.",
+            "metadata": {
+              "url": "https://en.wikipedia.org/wiki/Machine_learning",
+              "extractor": "http",
+              "chunk_id": 19,
+              "chunk_size": 385,
+              "total_chunks": 286,
+              "overlap_size": 50,
+              "chunk_index": 19
+            },
+            "score": 0.5179699716179604
+          },
+          {
+            "id": "https___en.wikipedia.org_wiki_Machine_learning_chunk_178",
+            "content": "and may be a paraphrase that appeared later. Confer \"Paraphrasing Arthur Samuel (1959), the question is: How can computers learn to solve problems without being explicitly programmed?\" in Koza, John R.; Bennett, Forrest H.; Andre, David; Keane, Martin A. (1996). \"Automated Design of Both the Topology and Sizing of Analog Electrical Circuits Using Genetic Programming\". Artificial Intelligence in Design '96 . Artificial Intelligence in Design '96. Dordrecht, Netherlands: Springer Netherlands. pp. 151– 170.",
+            "metadata": {
+              "url": "https://en.wikipedia.org/wiki/Machine_learning",
+              "extractor": "http",
+              "chunk_id": 178,
+              "chunk_size": 509,
+              "total_chunks": 286,
+              "overlap_size": 50,
+              "chunk_index": 178
+            },
+            "score": 0.516591204636555
+          }
+        ],
+        "result_count": 3,
+        "top_k": 3,
+        "threshold": 0.0,
+        "embedder": "sentence_transformer",
+        "index_store": "file_store"
+      }
+    }
+  }
+]
