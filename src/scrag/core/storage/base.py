@@ -76,7 +76,7 @@ class FileStorage(BaseStorageAdapter):
         self._directory.mkdir(parents=True, exist_ok=True)
         
         if self._format not in self.SUPPORTED_FORMATS:
-            raise ValueError(f"Unsupported format '{format}'. Supported formats: {', '.join(sorted(self.SUPPORTED_FORMATS))}")
+            raise ValueError(f"Unsupported format '{self._format}'. Supported formats: {', '.join(sorted(self.SUPPORTED_FORMATS))}")
 
     def store(self, context: StorageContext) -> StorageResult:
         filename = (
