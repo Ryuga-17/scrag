@@ -64,7 +64,7 @@ def extract(
         None,
         "--format",
         "-f",
-        help="Override storage format when writing to disk (e.g. json or txt).",
+        help="Override storage format when writing to disk (e.g. json, txt, ndjson, or md).",
     ),
     config_dir: Optional[Path] = typer.Option(None, help="Configuration directory location."),
     environment: Optional[str] = typer.Option(None, help="Configuration environment name."),
