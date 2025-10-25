@@ -90,12 +90,15 @@ For detailed architecture information, see [ARCHITECTURE.md](ARCHITECTURE.md).
 ---
 
 ## Roadmap
+- Universal RAG Builder: auto‑discover top results for a query, scrape them, and build a ready‑to‑use RAG index.  
+- Web UI: a lightweight interface for users who prefer a visual workflow.  
+- Export adapters: convenient formats for popular vector DBs and RAG frameworks.  
 
 ### Current Release (v1.0)
-- ✅ Multi-strategy extraction: newspaper3k, readability-lxml, and BeautifulSoup-based heuristics
-- ✅ Metadata capture: title, author, and date when available
-- ✅ CLI interface with configuration management
-- ✅ Extensible pipeline architecture
+-  Multi-strategy extraction: newspaper3k, readability-lxml, and BeautifulSoup-based heuristics
+-  Metadata capture: title, author, and date when available
+-  CLI interface with configuration management
+-  Extensible pipeline architecture
 
 ### Universal RAG Builder (v2.0) - In Planning
 Split into two focused EPICs for better implementation:
@@ -112,16 +115,11 @@ Split into two focused EPICs for better implementation:
 - Optimized Retrieval: Fast semantic search and query capabilities
 - Content Chunking: RAG-optimized text segmentation
 
-### Future Enhancements
-- Web UI: Lightweight interface for visual workflow management
-- Export adapters: Integration with popular vector DBs and RAG frameworks
-- Advanced JavaScript rendering: Support for dynamic content
-- Distributed processing: Scale across multiple machines
 
 ### Documentation & Research
-- 📚 `/research/` directory: Maintains architectural decisions, spikes, and institutional knowledge
-- 🔬 Spike-driven development: Thorough research before implementation
-- 📋 Comprehensive issue templates: Clear Definition of Done for all tasks  
+-  `/research/` directory: Maintains architectural decisions, spikes, and institutional knowledge
+-  Spike-driven development: Thorough research before implementation
+-  Comprehensive issue templates: Clear Definition of Done for all tasks  
 
 ---
 
