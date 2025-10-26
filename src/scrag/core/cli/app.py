@@ -73,12 +73,24 @@ def extract(
         "--min-length",
         help="Override the minimum content length requirement for this run.",
     ),
+    use_async: bool = typer.Option(
+        False,
+        "--async",
+        help="[EXPERIMENTAL] Enable async extraction for improved throughput with batch processing.",
+    ),
 ) -> None:
     """Execute the configured extraction pipeline for the provided URL."""
 
     normalized_url = _normalize_target_url(url)
 
     config = _resolve_config(config_dir=config_dir, environment=environment)
+    
+    # Override extractors if async mode is enabled
+    if use_async:
+        original_extractors = config.data.get("pipeline", {}).get("extractors", [])
+        config.data.setdefault("pipeline", {}).setdefault("extractors", [])
+        config.data["pipeline"]["extractors"] = ["async_http"] + original_extractors
+    
     runner = PipelineRunner(config)
 
     normalized_output = _normalize_output_path(output)
@@ -89,6 +101,9 @@ def extract(
         storage_format=output_format,
         min_content_length_override=min_length,
     )
+    
+    if use_async:
+        typer.echo("  mode: async (experimental)")
 
     typer.echo("Pipeline completed successfully.")
     typer.echo(f"  extractor: {result.extractor}")
