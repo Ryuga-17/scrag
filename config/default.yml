@@ -4,6 +4,10 @@ logging:
 scraping:
   user_agent: "scragBot/0.1"
   request_timeout: 10
+cache:
+  enabled: true
+  directory: .cache
+  default_ttl: 3600
 pipeline:
   extractors:
     - newspaper

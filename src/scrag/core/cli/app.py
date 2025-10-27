@@ -78,6 +78,11 @@ def extract(
         "--async",
         help="[EXPERIMENTAL] Enable async extraction for improved throughput with batch processing.",
     ),
+    no_cache: bool = typer.Option(
+        False,
+        "--no-cache",
+        help="Disable HTTP caching. Fetch fresh content regardless of cache.",
+    ),
 ) -> None:
     """Execute the configured extraction pipeline for the provided URL."""
 
