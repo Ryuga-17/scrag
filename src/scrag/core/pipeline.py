@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
+from core.cache import CacheStore
 from core.extractors import ExtractionContext, ExtractionResult, build_extractors
 from core.processors import ProcessingContext, ProcessingResult, build_processors
 from core.storage import StorageContext, StorageResult, build_storage
@@ -36,6 +37,7 @@ class PipelineRunner:
         output: Optional[Path] = None,
         storage_format: Optional[str] = None,
         min_content_length_override: Optional[int] = None,
+        use_cache: bool = True,
     ) -> PipelineRunResult:
         pipeline_cfg = self._config.data.get("pipeline", {})
         extractors_cfg = pipeline_cfg.get("extractors", [])
@@ -48,6 +50,14 @@ class PipelineRunner:
         )
 
         scraping_cfg = self._config.data.get("scraping", {})
+        cache_cfg = self._config.data.get("cache", {})
+
+        # Create cache store if caching is enabled
+        cache_store = None
+        if use_cache and cache_cfg.get("enabled", True):
+            cache_dir = Path(cache_cfg.get("directory", ".cache"))
+            cache_ttl = cache_cfg.get("default_ttl", 3600)
+            cache_store = CacheStore(cache_dir, default_ttl=cache_ttl)
 
         extractor_options_cfg = pipeline_cfg.get("extractor_options", {})
 
@@ -57,6 +67,10 @@ class PipelineRunner:
                 options["user_agent"] = scraping_cfg["user_agent"]
             if "timeout" not in options and scraping_cfg.get("request_timeout"):
                 options["timeout"] = scraping_cfg["request_timeout"]
+            if "cache_store" not in options:
+                options["cache_store"] = cache_store
+            if "use_cache" not in options:
+                options["use_cache"] = use_cache
             return options
 
         extractor_instances = build_extractors(

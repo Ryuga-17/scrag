@@ -105,6 +105,7 @@ def extract(
         output=normalized_output,
         storage_format=output_format,
         min_content_length_override=min_length,
+        use_cache=not no_cache,
     )
     
     if use_async:
