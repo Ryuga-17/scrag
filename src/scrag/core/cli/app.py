@@ -10,14 +10,14 @@ import sys
 
 import typer
 
-from scrag.core import __version__
-from scrag.core.utils import ScragConfig, load_config
-from scrag.core.rag.embedders import SentenceTransformerEmbedder, OpenAIEmbedder
-from scrag.core.rag.stores import FileIndexStore
-from scrag.core.rag.stages import EmbedStage, IndexStage, RetrievalStage
-from scrag.core.rag.pipeline import RAGPipelineRunner
-from scrag.core.pipeline.stages import StageContext
-from scrag.core.pipeline import PipelineRunner
+from .. import __version__
+from ..utils import ScragConfig, load_config
+from ..rag.embedders import SentenceTransformerEmbedder, OpenAIEmbedder
+from ..rag.stores import FileIndexStore
+from ..rag.stages import EmbedStage, IndexStage, RetrievalStage
+from ..rag.pipeline import RAGPipelineRunner
+from ..pipeline.stages import StageContext
+from ..pipeline import PipelineRunner
 
 app = typer.Typer(help="Adaptive scraping toolkit for RAG pipelines.")
 
@@ -85,6 +85,11 @@ def extract(
         "--async",
         help="[EXPERIMENTAL] Enable async extraction for improved throughput with batch processing.",
     ),
+    no_cache: bool = typer.Option(
+        False,
+        "--no-cache",
+        help="Disable HTTP caching for this run.",
+    ),
 ) -> None:
     """Execute the configured extraction pipeline for the provided URL."""
 
@@ -107,6 +112,7 @@ def extract(
         output=normalized_output,
         storage_format=output_format,
         min_content_length_override=min_length,
+        bypass_cache=no_cache,
     )
     
     if use_async:
@@ -126,6 +132,40 @@ def extract(
     if warnings:
         for warning in warnings:
             typer.echo(f"  warning: {warning}")
+
+
+@app.command()
+def cache(
+    action: str = typer.Argument(..., help="Cache action: 'info', 'clear'"),
+    config_dir: Optional[Path] = typer.Option(None, help="Configuration directory location."),
+    environment: Optional[str] = typer.Option(None, help="Configuration environment name."),
+) -> None:
+    """Manage HTTP cache."""
+    from ..utils.cache import HttpCache
+    
+    config = _resolve_config(config_dir=config_dir, environment=environment)
+    scraping_cfg = config.data.get("scraping", {})
+    cache_cfg = scraping_cfg.get("cache", {})
+    
+    cache_dir = None
+    if cache_cfg.get("directory"):
+        cache_dir = Path(cache_cfg["directory"])
+    
+    cache = HttpCache(cache_dir=cache_dir, max_age=cache_cfg.get("max_age", 3600))
+    
+    if action == "info":
+        info = cache.get_cache_info()
+        typer.echo("Cache Information:")
+        typer.echo(f"  Directory: {info['cache_dir']}")
+        typer.echo(f"  Entries: {info['entries']}")
+        typer.echo(f"  Size: {info['size_bytes']:,} bytes")
+    elif action == "clear":
+        cache.clear()
+        typer.echo("Cache cleared successfully.")
+    else:
+        typer.echo(f"Unknown action: {action}")
+        typer.echo("Available actions: info, clear")
+        raise typer.Exit(1)
 
 
 @app.command()

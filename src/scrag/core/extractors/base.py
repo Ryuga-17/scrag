@@ -4,10 +4,13 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 import requests
 from bs4 import BeautifulSoup
+
+from ..utils.cache import HttpCache, build_conditional_headers
 
 
 @dataclass(slots=True)
@@ -48,10 +51,20 @@ class BaseExtractor(ABC):
 class SimpleExtractor(BaseExtractor):
     """HTTP-based extractor that fetches and cleans web page content."""
 
-    def __init__(self, *, user_agent: Optional[str] = None, timeout: int = 10) -> None:
+    def __init__(
+        self, 
+        *, 
+        user_agent: Optional[str] = None, 
+        timeout: int = 10,
+        cache_dir: Optional[Path] = None,
+        enable_cache: bool = True,
+        cache_max_age: int = 3600,
+    ) -> None:
         super().__init__(name="http")
         self._user_agent = user_agent or "ScragBot/0.1"
         self._timeout = timeout
+        self._enable_cache = enable_cache
+        self._cache = HttpCache(cache_dir=cache_dir, max_age=cache_max_age) if enable_cache else None
 
     def extract(self, context: ExtractionContext) -> ExtractionResult:
         """Fetch the page via HTTP and extract readable text using BeautifulSoup."""
@@ -67,10 +80,75 @@ class SimpleExtractor(BaseExtractor):
         config_headers = context.metadata.get("headers", {}) if context.metadata else {}
         headers.update(config_headers)
         timeout = context.metadata.get("timeout", self._timeout) if context.metadata else self._timeout
+        
+        # Check cache bypass setting
+        bypass_cache = context.metadata.get("bypass_cache", False) if context.metadata else False
 
+        # Try to get from cache first (if caching is enabled and not bypassed)
+        if self._cache and not bypass_cache:
+            cached_entry = self._cache.get(context.url, headers)
+            if cached_entry:
+                # Use cached content
+                soup = BeautifulSoup(cached_entry.content, "html.parser")
+                text_segments = list(s.strip() for s in soup.stripped_strings)
+                content = "\n".join(segment for segment in text_segments if segment)
+
+                metadata = {
+                    "extractor": self.name,
+                    "status_code": cached_entry.status_code,
+                    "title": soup.title.string.strip() if soup.title and soup.title.string else None,
+                    "cached": True,
+                    "cache_timestamp": cached_entry.timestamp,
+                    **(context.metadata or {}),
+                }
+
+                return ExtractionResult(
+                    content=content,
+                    metadata=metadata,
+                    succeeded=bool(content.strip()),
+                )
+
+        # Make HTTP request
         try:
+            # If we have a cached entry, try conditional request first
+            if self._cache and not bypass_cache:
+                cached_entry = self._cache.get(context.url, headers)
+                if cached_entry:
+                    conditional_headers = build_conditional_headers(cached_entry)
+                    headers.update(conditional_headers)
+            
             response = requests.get(context.url, headers=headers, timeout=timeout)
+            
+            # Handle 304 Not Modified response
+            if response.status_code == 304 and self._cache and not bypass_cache:
+                cached_entry = self._cache.get(context.url, headers)
+                if cached_entry:
+                    soup = BeautifulSoup(cached_entry.content, "html.parser")
+                    text_segments = list(s.strip() for s in soup.stripped_strings)
+                    content = "\n".join(segment for segment in text_segments if segment)
+
+                    metadata = {
+                        "extractor": self.name,
+                        "status_code": cached_entry.status_code,
+                        "title": soup.title.string.strip() if soup.title and soup.title.string else None,
+                        "cached": True,
+                        "not_modified": True,
+                        "cache_timestamp": cached_entry.timestamp,
+                        **(context.metadata or {}),
+                    }
+
+                    return ExtractionResult(
+                        content=content,
+                        metadata=metadata,
+                        succeeded=bool(content.strip()),
+                    )
+            
             response.raise_for_status()
+            
+            # Cache the response if caching is enabled
+            if self._cache and not bypass_cache:
+                self._cache.put(context.url, headers, response)
+                
         except requests.RequestException as error:
             return ExtractionResult(
                 content="",
@@ -89,6 +167,7 @@ class SimpleExtractor(BaseExtractor):
             "extractor": self.name,
             "status_code": response.status_code,
             "title": soup.title.string.strip() if soup.title and soup.title.string else None,
+            "cached": False,
             **(context.metadata or {}),
         }
 

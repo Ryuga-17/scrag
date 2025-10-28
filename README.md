@@ -46,6 +46,7 @@ An ambitious, optional extension to this project is the Universal RAG Builder. T
 - Optional headless rendering fallback for dynamic, JS‑heavy pages.  
 - RAG‑ready output: clean, structured content suitable for chunking and indexing.  
 - CLI first: simple commands to fetch and export content; web UI planned.  
+- HTTP caching: Lightweight on-disk cache with ETag/Last-Modified support for faster repeated runs.  
 
 ---
 
@@ -158,6 +159,13 @@ uv run scrag extract https://example.com/article --output data/custom --format t
 
 # Relax the minimum content length requirement for sparse pages
 uv run scrag extract https://example.com/article --min-length 50
+
+# Disable caching for fresh content
+uv run scrag extract https://example.com/article --no-cache
+
+# Manage cache
+uv run scrag cache info    # View cache statistics
+uv run scrag cache clear   # Clear all cached entries
 ```
 
 ---
