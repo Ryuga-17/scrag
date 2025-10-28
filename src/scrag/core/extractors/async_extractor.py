@@ -119,7 +119,7 @@ class AsyncHttpExtractor(BaseExtractor):
 
         # Handle exceptions
         processed_results = []
-        for idx, result in enumerate(results):
+        for result in results:
             if isinstance(result, Exception):
                 processed_results.append(
                     ExtractionResult(
