@@ -2,8 +2,8 @@
 
 import pytest
 
-from core.processors.chunking import ChunkingProcessor
-from core.processors.base import ProcessingContext
+from scrag.core.processors.chunking import ChunkingProcessor
+from scrag.core.processors.base import ProcessingContext
 
 
 class TestChunkingProcessor:
