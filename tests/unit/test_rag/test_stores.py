@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 import pytest
 
-from core.rag.stores import FileIndexStore, IndexDocument, SearchQuery
+from scrag.core.rag.stores import FileIndexStore, IndexDocument, SearchQuery
 
 
 class TestFileIndexStore:
