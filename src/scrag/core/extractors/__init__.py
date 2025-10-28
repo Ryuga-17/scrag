@@ -6,12 +6,15 @@ from typing import Dict, Iterable, List
 from .base import BaseExtractor, ExtractionContext, ExtractionResult, SimpleExtractor
 from .newspaper_extractor import NewspaperExtractor
 from .readability_extractor import ReadabilityExtractor
+from .async_extractor import AsyncHttpExtractor
 
 EXTRACTOR_REGISTRY = {
     "http": SimpleExtractor,
     "simple": SimpleExtractor,
     "newspaper": NewspaperExtractor,
     "readability": ReadabilityExtractor,
+    "async_http": AsyncHttpExtractor,
+    "async": AsyncHttpExtractor,
 }
 
 
@@ -41,6 +44,7 @@ __all__ = [
     "SimpleExtractor",
     "NewspaperExtractor",
     "ReadabilityExtractor",
+    "AsyncHttpExtractor",
     "EXTRACTOR_REGISTRY",
     "build_extractors",
 ]
