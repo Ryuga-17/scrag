@@ -12,6 +12,11 @@ import typer
 
 from scrag.core import __version__
 from scrag.core.utils import ScragConfig, load_config
+from scrag.core.extractors import (
+    get_available_extractors,
+    is_web_render_extractor,
+    get_missing_web_render_dependencies,
+)
 from scrag.core.rag.embedders import SentenceTransformerEmbedder, OpenAIEmbedder
 from scrag.core.rag.stores import FileIndexStore
 from scrag.core.rag.stages import EmbedStage, IndexStage, RetrievalStage
@@ -59,6 +64,50 @@ def info(
 
 
 @app.command()
+def extractors() -> None:
+    """List all available extractors and their dependency status."""
+    
+    typer.echo("📋 Available Extractors")
+    typer.echo("=" * 50)
+    
+    available = get_available_extractors()
+    missing_deps = get_missing_web_render_dependencies()
+    
+    # Group extractors by type
+    core_extractors = {}
+    web_render_extractors = {}
+    
+    for name, cls in available.items():
+        if is_web_render_extractor(name):
+            web_render_extractors[name] = cls
+        else:
+            core_extractors[name] = cls
+    
+    # Display core extractors
+    typer.echo("\n✅ Core Extractors (always available):")
+    for name in sorted(core_extractors.keys()):
+        typer.echo(f"  • {name}")
+    
+    # Display web-render extractors
+    if web_render_extractors:
+        typer.echo("\n🌐 Web Rendering Extractors (JavaScript support):")
+        for name in sorted(web_render_extractors.keys()):
+            typer.echo(f"  • {name}")
+    
+    # Show missing dependencies
+    if missing_deps:
+        typer.echo("\n❌ Missing Dependencies:")
+        for dep in missing_deps:
+            typer.echo(f"  • {dep} - install with: pip install 'scrag[web-render]'")
+        typer.echo("\n💡 Web rendering extractors provide JavaScript execution for dynamic content.")
+        typer.echo("   They have a heavy footprint and are not recommended for CI environments.")
+    else:
+        typer.echo("\n✅ All web rendering dependencies are available!")
+    
+    typer.echo(f"\nTotal available extractors: {len(available)}")
+
+
+@app.command()
 def extract(
     url: str = typer.Argument(..., help="URL to scrape and process."),
     output: Optional[Path] = typer.Option(
@@ -85,6 +134,31 @@ def extract(
         "--async",
         help="[EXPERIMENTAL] Enable async extraction for improved throughput with batch processing.",
     ),
+    use_selenium: bool = typer.Option(
+        False,
+        "--selenium",
+        help="Use Selenium for JavaScript-heavy pages (requires 'pip install scrag[web-render]').",
+    ),
+    use_playwright: bool = typer.Option(
+        False,
+        "--playwright",
+        help="Use Playwright for JavaScript-heavy pages (requires 'pip install scrag[web-render]').",
+    ),
+    browser: str = typer.Option(
+        "chrome",
+        "--browser",
+        help="Browser to use for web rendering (chrome, firefox, chromium, webkit).",
+    ),
+    headless: bool = typer.Option(
+        True,
+        "--headless/--no-headless",
+        help="Run browser in headless mode.",
+    ),
+    timeout: int = typer.Option(
+        30,
+        "--timeout",
+        help="Page load timeout in seconds for web rendering.",
+    ),
 ) -> None:
     """Execute the configured extraction pipeline for the provided URL."""
 
@@ -92,8 +166,56 @@ def extract(
 
     config = _resolve_config(config_dir=config_dir, environment=environment)
     
-    # Override extractors if async mode is enabled
-    if use_async:
+    # Handle web rendering extractor options
+    if use_selenium and use_playwright:
+        typer.echo("❌ Cannot use both --selenium and --playwright at the same time", err=True)
+        raise typer.Exit(1)
+    
+    # Override extractors based on options
+    if use_selenium or use_playwright:
+        # Check if web-render dependencies are available
+        missing_deps = get_missing_web_render_dependencies()
+        
+        if use_selenium and "selenium" in missing_deps:
+            typer.echo("❌ Selenium not available. Install with: pip install 'scrag[web-render]'", err=True)
+            raise typer.Exit(1)
+        
+        if use_playwright and "playwright" in missing_deps:
+            typer.echo("❌ Playwright not available. Install with: pip install 'scrag[web-render]'", err=True)
+            raise typer.Exit(1)
+        
+        # Configure web rendering extractor
+        original_extractors = config.data.get("pipeline", {}).get("extractors", [])
+        config.data.setdefault("pipeline", {}).setdefault("extractors", [])
+        
+        if use_selenium:
+            if browser.lower() in ("chrome", "firefox"):
+                extractor_name = f"selenium_{browser.lower()}"
+            else:
+                extractor_name = "selenium"
+                typer.echo(f"⚠️  Browser '{browser}' not supported for Selenium, using default (chrome)")
+        elif use_playwright:
+            if browser.lower() in ("chromium", "firefox", "webkit"):
+                extractor_name = f"playwright_{browser.lower()}"
+            else:
+                extractor_name = "playwright"
+                typer.echo(f"⚠️  Browser '{browser}' not supported for Playwright, using default (chromium)")
+        
+        config.data["pipeline"]["extractors"] = [extractor_name] + original_extractors
+        
+        # Add web rendering configuration
+        config.data.setdefault("pipeline", {}).setdefault("extractor_options", {})
+        config.data["pipeline"]["extractor_options"][extractor_name] = {
+            "headless": headless,
+            "timeout": timeout,
+            "page_load_timeout": timeout,
+        }
+        
+        typer.echo(f"🌐 Using {extractor_name} for JavaScript-heavy page extraction")
+        typer.echo(f"   Browser: {browser} ({'headless' if headless else 'with UI'})")
+        typer.echo(f"   Timeout: {timeout}s")
+    
+    elif use_async:
         original_extractors = config.data.get("pipeline", {}).get("extractors", [])
         config.data.setdefault("pipeline", {}).setdefault("extractors", [])
         config.data["pipeline"]["extractors"] = ["async_http"] + original_extractors

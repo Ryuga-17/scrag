@@ -19,6 +19,13 @@ dependencies = [
 	"aiohttp>=3.10",
 ]
 
+[project.optional-dependencies]
+web-render = [
+	"selenium>=4.15",
+	"playwright>=1.40",
+	"webdriver-manager>=4.0",
+]
+
 [project.scripts]
 scrag = "core.cli:main"
 
