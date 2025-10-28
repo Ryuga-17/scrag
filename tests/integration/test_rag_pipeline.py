@@ -5,14 +5,14 @@ import tempfile
 from pathlib import Path
 import pytest
 
-from core.utils import ScragConfig
-from core.rag.embedders import SentenceTransformerEmbedder
-from core.rag.stores import FileIndexStore, IndexDocument
-from core.rag.stages import EmbedStage, IndexStage, RetrievalStage
-from core.rag.pipeline import RAGPipelineRunner
-from core.processors.chunking import ChunkingProcessor
-from core.processors.base import ProcessingContext
-from core.pipeline.stages import StageContext
+from scrag.core.utils import ScragConfig
+from scrag.core.rag.embedders import SentenceTransformerEmbedder
+from scrag.core.rag.stores import FileIndexStore, IndexDocument
+from scrag.core.rag.stages import EmbedStage, IndexStage, RetrievalStage
+from scrag.core.rag.pipeline import RAGPipelineRunner
+from scrag.core.processors.chunking import ChunkingProcessor
+from scrag.core.processors.base import ProcessingContext
+from scrag.core.pipeline.stages import StageContext
 
 
 class TestRAGPipelineIntegration:
