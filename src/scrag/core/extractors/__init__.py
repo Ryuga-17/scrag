@@ -1,5 +1,5 @@
 """Extraction strategy interfaces and implementations."""
-
+from functools import partial
 import logging
 from inspect import Parameter, signature
 from typing import Dict, Iterable, List, Optional, Type
@@ -28,8 +28,8 @@ WEB_RENDER_EXTRACTORS = {}
 try:
     from .selenium_extractor import SeleniumExtractor
     WEB_RENDER_EXTRACTORS["selenium"] = SeleniumExtractor
-    WEB_RENDER_EXTRACTORS["selenium_chrome"] = lambda **kwargs: SeleniumExtractor(browser="chrome", **kwargs)
-    WEB_RENDER_EXTRACTORS["selenium_firefox"] = lambda **kwargs: SeleniumExtractor(browser="firefox", **kwargs)
+    WEB_RENDER_EXTRACTORS["selenium_chrome"] = partial(SeleniumExtractor, browser="chrome")
+    WEB_RENDER_EXTRACTORS["selenium_firefox"] = partial(SeleniumExtractor, browser="firefox")
 except ImportError as e:
     logger.debug(f"Selenium extractor not available: {e}")
 
@@ -37,9 +37,9 @@ except ImportError as e:
 try:
     from .playwright_extractor import PlaywrightExtractor
     WEB_RENDER_EXTRACTORS["playwright"] = PlaywrightExtractor
-    WEB_RENDER_EXTRACTORS["playwright_chromium"] = lambda **kwargs: PlaywrightExtractor(browser="chromium", **kwargs)
-    WEB_RENDER_EXTRACTORS["playwright_firefox"] = lambda **kwargs: PlaywrightExtractor(browser="firefox", **kwargs)
-    WEB_RENDER_EXTRACTORS["playwright_webkit"] = lambda **kwargs: PlaywrightExtractor(browser="webkit", **kwargs)
+    WEB_RENDER_EXTRACTORS["playwright_chromium"] = partial(PlaywrightExtractor, browser="chromium")
+    WEB_RENDER_EXTRACTORS["playwright_firefox"] = partial(PlaywrightExtractor, browser="firefox")
+    WEB_RENDER_EXTRACTORS["playwright_webkit"] = partial(PlaywrightExtractor, browser="webkit")
 except ImportError as e:
     logger.debug(f"Playwright extractor not available: {e}")
 

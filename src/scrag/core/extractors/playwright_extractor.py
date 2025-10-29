@@ -111,7 +111,7 @@ class PlaywrightExtractor(WebRenderExtractor):
             self._cleanup_playwright()
             raise
     
-    def _get_browser_args(self) -> list[str]:
+    def _get_browser_args(self) -> List[str]:
         """Get browser launch arguments."""
         args = [
             "--no-sandbox",
