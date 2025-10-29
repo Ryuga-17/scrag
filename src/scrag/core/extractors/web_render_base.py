@@ -155,7 +155,7 @@ class WebRenderExtractor(BaseExtractor):
 class WebRenderDependencyError(ImportError):
     """Raised when web rendering dependencies are not available."""
     
-    def __init__(self, extractor_name: str, dependencies: list[str]) -> None:
+    def __init__(self, extractor_name: str, dependencies: List[str]) -> None:
         self.extractor_name = extractor_name
         self.dependencies: List[str] = dependencies
         deps_str = ", ".join(dependencies)
@@ -165,7 +165,7 @@ class WebRenderDependencyError(ImportError):
         )
 
 
-def check_web_render_dependency(dependency_name: str, import_names: list[str]) -> None:
+def check_web_render_dependency(dependency_name: str, import_names: List[str]) -> None:
     """Check if a web rendering dependency is available."""
     for import_name in import_names:
             try:
