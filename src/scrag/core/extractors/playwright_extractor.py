@@ -5,6 +5,8 @@ from __future__ import annotations
 import asyncio
 import logging
 from typing import Any, Optional
+from typing import Optional
+from .types import ExtractionContext, ExtractionResult
 
 from .web_render_base import (
     WebRenderConfig,
@@ -266,14 +268,12 @@ class AsyncPlaywrightExtractor(WebRenderExtractor):
         """Not used in async version."""
         return None
     
-    def _cleanup_driver(self, driver: Any) -> None:
-        """Not used in async version."""
+    def _cleanup_driver(self, driver: Optional[object]) -> None:
+        """Clean up the driver instance if needed (not used in async version)."""
         pass
-    
-    async def extract_async(self, context: Any) -> Any:
+
+    async def extract_async(self, context: ExtractionContext) -> ExtractionResult:
         """Async version of extract method."""
-        # This would need to be implemented for full async support
-        # For now, we'll focus on the synchronous version
         raise NotImplementedError("Async extraction not yet implemented")
 
 
