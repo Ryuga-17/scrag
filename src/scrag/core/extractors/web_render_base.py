@@ -157,7 +157,7 @@ class WebRenderDependencyError(ImportError):
     
     def __init__(self, extractor_name: str, dependencies: list[str]) -> None:
         self.extractor_name = extractor_name
-        self.dependencies = dependencies
+        self.dependencies: List[str] = dependencies
         deps_str = ", ".join(dependencies)
         super().__init__(
             f"{extractor_name} extractor requires optional dependencies: {deps_str}. "
@@ -168,7 +168,7 @@ class WebRenderDependencyError(ImportError):
 def check_web_render_dependency(dependency_name: str, import_names: list[str]) -> None:
     """Check if a web rendering dependency is available."""
     for import_name in import_names:
-        try:
+            try:
             __import__(import_name)
         except ImportError:
             raise WebRenderDependencyError(dependency_name, import_names)
