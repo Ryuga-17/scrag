@@ -41,11 +41,38 @@ An ambitious, optional extension to this project is the Universal RAG Builder. T
 ---
 
 ## Features
-- Multi‑strategy extraction: newspaper3k, readability‑lxml, and BeautifulSoup‑based heuristics.  
-- Metadata capture: title, author, and date when available.  
-- Optional headless rendering fallback for dynamic, JS‑heavy pages.  
-- RAG‑ready output: clean, structured content suitable for chunking and indexing.  
-- CLI first: simple commands to fetch and export content; web UI planned.  
+- **Multi‑strategy extraction**: newspaper3k, readability‑lxml, and BeautifulSoup‑based heuristics  
+- **JavaScript support**: Optional Selenium and Playwright extractors for dynamic content ⚡  
+- **Metadata capture**: title, author, and date when available  
+- **RAG pipeline integration**: Complete embedding, indexing, and retrieval system 🧠  
+- **Flexible configuration**: YAML-based configuration with environment support  
+- **CLI first**: Simple commands to extract, process, and query content  
+- **Graceful fallbacks**: Automatic fallback between extraction strategies  
+- **Performance optimized**: Async extraction and configurable timeouts  
+
+### Web Rendering Capabilities
+
+For JavaScript-heavy pages that require browser automation:
+
+```bash
+# Install with web rendering support
+pip install 'scrag[web-render]'
+
+# Extract from single-page applications
+scrag extract https://spa-example.com --selenium --browser chrome
+
+# Use Playwright for modern web apps
+scrag extract https://dynamic-site.com --playwright --browser chromium
+
+# List available extractors
+scrag extractors
+```
+
+**Supported browsers:**
+- **Selenium**: Chrome, Firefox  
+- **Playwright**: Chromium, Firefox, WebKit  
+
+> ⚠️ **Note**: Web rendering extractors have a heavy footprint and are not recommended for CI environments. See [Web Rendering Guide](docs/guides/web-rendering-extractors.md) for details.  
 
 ---
 
