@@ -7,7 +7,9 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
 
 import requests
-from bs4 import BeautifulSoup
+
+from ..utils.utils import parse_html_content
+from ..utils.headers import normalize_headers, get_header_value
 
 
 @dataclass(slots=True)
@@ -44,6 +46,9 @@ class BaseExtractor(ABC):
 
         return bool(context.url)
 
+"""Extractor interfaces and base implementations."""
+
+# ...existing imports...
 
 class SimpleExtractor(BaseExtractor):
     """HTTP-based extractor that fetches and cleans web page content."""
@@ -52,6 +57,10 @@ class SimpleExtractor(BaseExtractor):
         super().__init__(name="http")
         self._user_agent = user_agent or "ScragBot/0.1"
         self._timeout = timeout
+
+    def _get_metadata_value(self, context: ExtractionContext, key: str, default: Any) -> Any:
+        """Helper method to retrieve a value from context metadata."""
+        return context.metadata.get(key, default) if context.metadata else default
 
     def extract(self, context: ExtractionContext) -> ExtractionResult:
         """Fetch the page via HTTP and extract readable text using BeautifulSoup."""
@@ -64,9 +73,12 @@ class SimpleExtractor(BaseExtractor):
             )
 
         headers = {"User-Agent": self._user_agent}
-        config_headers = context.metadata.get("headers", {}) if context.metadata else {}
+        config_headers = self._get_metadata_value(context, "headers", {})
         headers.update(config_headers)
-        timeout = context.metadata.get("timeout", self._timeout) if context.metadata else self._timeout
+        
+        # Normalize headers for case-insensitive handling
+        headers = normalize_headers(headers)
+        timeout = self._get_metadata_value(context, "timeout", self._timeout)
 
         try:
             response = requests.get(context.url, headers=headers, timeout=timeout)
@@ -81,16 +93,8 @@ class SimpleExtractor(BaseExtractor):
                 succeeded=False,
             )
 
-        soup = BeautifulSoup(response.text, "html.parser")
-        text_segments = list(s.strip() for s in soup.stripped_strings)
-        content = "\n".join(segment for segment in text_segments if segment)
-
-        metadata = {
-            "extractor": self.name,
-            "status_code": response.status_code,
-            "title": soup.title.string.strip() if soup.title and soup.title.string else None,
-            **(context.metadata or {}),
-        }
+        content, metadata = parse_html_content(response.text, self.name, response.status_code)
+        metadata.update(context.metadata or {})
 
         return ExtractionResult(
             content=content,

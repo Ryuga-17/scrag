@@ -1,6 +1,9 @@
 """Async HTTP extractor using aiohttp for concurrent scraping."""
 
 from __future__ import annotations
+from ..utils.utils import parse_html_content
+from ..utils.headers import normalize_headers, get_header_value
+
 
 import asyncio
 from typing import Any, Dict, List, Optional
@@ -62,6 +65,9 @@ class AsyncHttpExtractor(BaseExtractor):
         """Extract content from a single URL using aiohttp."""
         timeout = aiohttp.ClientTimeout(total=self._timeout)
         headers = {"User-Agent": self._user_agent}
+        
+        # Normalize headers for case-insensitive handling
+        headers = normalize_headers(headers)
 
         async with aiohttp.ClientSession(timeout=timeout) as session:
             try:
@@ -69,15 +75,8 @@ class AsyncHttpExtractor(BaseExtractor):
                     response.raise_for_status()
                     html = await response.text()
 
-                    soup = BeautifulSoup(html, "html.parser")
-                    text_segments = list(s.strip() for s in soup.stripped_strings)
-                    content = "\n".join(segment for segment in text_segments if segment)
-
-                    metadata: Dict[str, Any] = {
-                        "extractor": self.name,
-                        "status_code": response.status,
-                        "title": soup.title.string.strip() if soup.title and soup.title.string else None,
-                    }
+                    # Use the shared helper method
+                    content, metadata = parse_html_content(html, self.name, response.status)
 
                     return ExtractionResult(
                         content=content,
