@@ -1,6 +1,9 @@
 """Async HTTP extractor using aiohttp for concurrent scraping."""
 
 from __future__ import annotations
+from ..utils.utils import parse_html_content
+from ..utils.headers import normalize_headers, get_header_value
+
 
 import asyncio
 from pathlib import Path
@@ -70,6 +73,7 @@ class AsyncHttpExtractor(BaseExtractor):
         timeout = aiohttp.ClientTimeout(total=self._timeout)
         headers = {"User-Agent": self._user_agent}
         
+<<<<<<< HEAD
         # Add config headers
         config_headers = context.metadata.get("headers", {}) if context.metadata else {}
         headers.update(config_headers)
@@ -100,6 +104,10 @@ class AsyncHttpExtractor(BaseExtractor):
                     metadata=metadata,
                     succeeded=bool(content.strip()),
                 )
+=======
+        # Normalize headers for case-insensitive handling
+        headers = normalize_headers(headers)
+>>>>>>> fix/version-consolidation
 
         async with aiohttp.ClientSession(timeout=timeout) as session:
             try:
@@ -150,6 +158,7 @@ class AsyncHttpExtractor(BaseExtractor):
                         mock_response = MockResponse(html, response.status, dict(response.headers))
                         self._cache.put(context.url, headers, mock_response)
 
+<<<<<<< HEAD
                     soup = BeautifulSoup(html, "html.parser")
                     text_segments = list(s.strip() for s in soup.stripped_strings)
                     content = "\n".join(segment for segment in text_segments if segment)
@@ -161,6 +170,10 @@ class AsyncHttpExtractor(BaseExtractor):
                         "cached": False,
                         **(context.metadata or {}),
                     }
+=======
+                    # Use the shared helper method
+                    content, metadata = parse_html_content(html, self.name, response.status)
+>>>>>>> fix/version-consolidation
 
                     return ExtractionResult(
                         content=content,

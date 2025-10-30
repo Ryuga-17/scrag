@@ -7,19 +7,32 @@ from urllib.parse import urlparse
 from typing import Optional, List
 import json
 import sys
+import tomllib
 
 import typer
 
-from .. import __version__
-from ..utils import ScragConfig, load_config
-from ..rag.embedders import SentenceTransformerEmbedder, OpenAIEmbedder
-from ..rag.stores import FileIndexStore
-from ..rag.stages import EmbedStage, IndexStage, RetrievalStage
-from ..rag.pipeline import RAGPipelineRunner
-from ..pipeline.stages import StageContext
-from ..pipeline import PipelineRunner
+from scrag.core import __version__
+from scrag.core.utils import ScragConfig, load_config
+from scrag.core.rag.embedders import SentenceTransformerEmbedder, OpenAIEmbedder
+from scrag.core.rag.stores import FileIndexStore
+from scrag.core.rag.stages import EmbedStage, IndexStage, RetrievalStage
+from scrag.core.rag.pipeline import RAGPipelineRunner
+from scrag.core.pipeline.stages import StageContext
+from scrag.core.pipeline import PipelineRunner
 
 app = typer.Typer(help="Adaptive scraping toolkit for RAG pipelines.")
+
+
+def _get_version() -> str:
+    """Get version from pyproject.toml."""
+    try:
+        # Get the path to pyproject.toml relative to this file
+        pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
+        with open(pyproject_path, "rb") as f:
+            data = tomllib.load(f)
+        return data["project"]["version"]
+    except (FileNotFoundError, KeyError, tomllib.TOMLDecodeError):
+        return "unknown"
 
 
 def _resolve_config(config_dir: Optional[Path], environment: Optional[str]) -> ScragConfig:
@@ -461,7 +474,7 @@ def main_callback(
     """Global CLI callback to expose version info."""
 
     if version:
-        typer.echo(__version__)
+        typer.echo(_get_version())
         raise typer.Exit()
 
 
